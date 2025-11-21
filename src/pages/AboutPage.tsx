@@ -1,4 +1,4 @@
-import { Users, Target, Zap, Award, ArrowRight, Star, Instagram, Linkedin, Heart } from 'lucide-react'
+import { Users, Target, Zap, Award, ArrowRight, Instagram, Linkedin, Heart } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
 export default function AboutPage() {

@@ -1,4 +1,5 @@
-import { useContext, useState, FormEvent } from 'react'
+import { useContext, useState } from 'react'
+import type { FormEvent } from 'react'
 import { CartContext } from '../context/CartContext'
 import { useToast } from '../context/ToastContext'
 import { useAuth } from '../context/AuthContext'
@@ -18,7 +19,8 @@ export default function CartPage() {
   const shipping = cartState.items.length > 0 ? 5000 : 0
   const total = subtotal + shipping
   const isCartEmpty = cartState.items.length === 0
-  const checkoutDisabled = isCartEmpty || !isAuthenticated
+  // Checkout is disabled if cart is empty or user is not authenticated
+  const _checkoutDisabled = isCartEmpty || !isAuthenticated
 
   const handleRemove = (id: number, label: string) => {
     dispatch({ type: 'REMOVE_FROM_CART', id })

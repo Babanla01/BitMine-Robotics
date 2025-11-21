@@ -1,4 +1,5 @@
-import { createContext, useReducer, ReactNode, Dispatch, useEffect } from 'react';
+import { createContext, useReducer, useEffect } from 'react';
+import type { ReactNode, Dispatch } from 'react';
 
 export interface Product {
   id: number;

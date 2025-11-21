@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { User, Mail, Phone, GraduationCap, Briefcase, MessageSquare, FileText, Users } from 'lucide-react';
+import { User, Mail, Phone, GraduationCap, Briefcase, MessageSquare, FileText } from 'lucide-react';
 
 export default function TutorPage() {
   const [formData, setFormData] = useState({
