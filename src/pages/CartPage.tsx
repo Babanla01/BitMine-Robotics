@@ -20,7 +20,7 @@ export default function CartPage() {
   const total = subtotal + shipping
   const isCartEmpty = cartState.items.length === 0
   // Checkout is disabled if cart is empty or user is not authenticated
-  const _checkoutDisabled = isCartEmpty || !isAuthenticated
+  // Removed unused _checkoutDisabled variable
 
   const handleRemove = (id: number, label: string) => {
     dispatch({ type: 'REMOVE_FROM_CART', id })

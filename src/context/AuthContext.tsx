@@ -1,4 +1,5 @@
-import { createContext, useReducer, useContext, useEffect, ReactNode } from 'react'
+import { createContext, useReducer, useContext, useEffect } from 'react'
+import type { ReactNode } from 'react'
 
 interface User {
   name: string
