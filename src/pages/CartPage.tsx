@@ -1,5 +1,4 @@
-import { useContext, useState } from 'react'
-import type { FormEvent } from 'react'
+import { useContext } from 'react'
 import { CartContext } from '../context/CartContext'
 import { useToast } from '../context/ToastContext'
 import { useAuth } from '../context/AuthContext'
@@ -8,19 +7,11 @@ export default function CartPage() {
   const { state: cartState, dispatch } = useContext(CartContext)
   const { addToast } = useToast()
   const { isAuthenticated } = useAuth()
-  const [checkoutForm, setCheckoutForm] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    notes: ''
-  })
-
+  
   const subtotal = cartState.items.reduce((sum, item) => sum + item.price * item.qty, 0)
   const shipping = cartState.items.length > 0 ? 5000 : 0
   const total = subtotal + shipping
   const isCartEmpty = cartState.items.length === 0
-  // Checkout is disabled if cart is empty or user is not authenticated
-  // Removed unused _checkoutDisabled variable
 
   const handleRemove = (id: number, label: string) => {
     dispatch({ type: 'REMOVE_FROM_CART', id })
@@ -32,18 +23,20 @@ export default function CartPage() {
     addToast('Cart cleared', 'info')
   }
 
-  const handleCheckoutSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
+  const handlePlaceOrder = (e: React.MouseEvent) => {
+    e.preventDefault()
+    if (isCartEmpty) {
+      addToast('Your cart is empty', 'error')
+      return
+    }
     if (!isAuthenticated) {
-      addToast('Please sign in to place an order.', 'error')
+      addToast('Please log in to complete your order', 'error')
       return
     }
-    if (!checkoutForm.name || !checkoutForm.email) {
-      addToast('Please provide your name and email', 'error')
-      return
-    }
-    addToast('Checkout request received! We will reach out shortly.', 'success')
-    setCheckoutForm({ name: '', email: '', phone: '', notes: '' })
+    // Handle order placement logic here
+    addToast('Order placed successfully!', 'success')
+    // Clear cart after successful order
+    dispatch({ type: 'CLEAR_CART' })
   }
 
   return (
@@ -106,45 +99,14 @@ export default function CartPage() {
             <div className="card border-0 shadow-sm p-4 mini-checkout">
               <h3 className="h5 fw-semibold mb-1">Quick Checkout</h3>
               <p className="text-medium small mb-3">Share your contact info and we’ll reach out to confirm delivery.</p>
-              <form onSubmit={handleCheckoutSubmit} className="mini-checkout-form">
-                <label className="form-label">Full Name</label>
-                <input
-                  type="text"
-                  className="form-control mb-3"
-                  placeholder="Ada Lovelace"
-                  value={checkoutForm.name}
-                  onChange={e => setCheckoutForm(prev => ({ ...prev, name: e.target.value }))}
-                  required
-                />
-                <label className="form-label">Email</label>
-                <input
-                  type="email"
-                  className="form-control mb-3"
-                  placeholder="hello@bitmine.com"
-                  value={checkoutForm.email}
-                  onChange={e => setCheckoutForm(prev => ({ ...prev, email: e.target.value }))}
-                  required
-                />
-                <label className="form-label">Phone</label>
-                <input
-                  type="tel"
-                  className="form-control mb-3"
-                  placeholder="+234 800 000 0000"
-                  value={checkoutForm.phone}
-                  onChange={e => setCheckoutForm(prev => ({ ...prev, phone: e.target.value }))}
-                />
-                <label className="form-label">Notes</label>
-                <textarea
-                  className="form-control mb-3"
-                  rows={3}
-                  placeholder="Preferred delivery timeline..."
-                  value={checkoutForm.notes}
-                  onChange={e => setCheckoutForm(prev => ({ ...prev, notes: e.target.value }))}
-                ></textarea>
-                <button type="submit" className="btn btn-primary w-100" disabled={isCartEmpty}>
-                  Place Order
-                </button>
-              </form>
+              <h2 className="h4 fw-bold mb-4">Ready to Checkout?</h2>
+              <p className="text-muted mb-4">Review your items and place your order</p>
+              <button
+                onClick={handlePlaceOrder}
+                className="btn btn-primary w-100"
+                disabled={isCartEmpty}
+              >  Place Order
+              </button>
             </div>
           </div>
         </div>

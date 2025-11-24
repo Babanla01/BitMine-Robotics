@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
-import { Mail, Phone, MapPin, MessageCircle, CheckCircle, Loader2 } from 'lucide-react'
+import { Mail, Phone, MapPin, CheckCircle, Loader2 } from 'lucide-react'
+import { FaWhatsapp } from 'react-icons/fa'
 import { useForm } from 'react-hook-form'
 import emailjs from '@emailjs/browser'
 
@@ -37,7 +38,7 @@ export default function ContactPage() {
         from_email: data.email,
         subject: data.subject,
         message: data.message,
-        to_email: 'mahammudabolaji@gmail.com' // Your Gmail address
+        to_email: 'bitmineroboticscw@gmail.com' // Your Gmail address
       };
 
       await emailjs.send(
@@ -65,52 +66,49 @@ export default function ContactPage() {
 
   // Replace '234YOURWHATSAPPNUMBER' with your actual WhatsApp number including country code (without + or 00)
   // Example: '2348123456789' for a Nigerian number
-  const whatsappNumber = '09079682962'; // Replace with your WhatsApp number
-  const whatsappMessage = 'Hello%20BitMine%20Robotics%2C%20I%20would%20like%20to%20get%20in%20touch';
-  const whatsappLink = `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`;
+  // const whatsappNumber = '09079682962'; // Replace with your WhatsApp number
+  // const whatsappMessage = 'Hello%20BitMine%20Robotics%2C%20I%20would%20like%20to%20get%20in%20touch';
+  // const whatsappLink = `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`;
 
   return (
     <div className="bg-light">
       {/* Header Section */}
-      <section className="py-5 py-md-8 bg-white border-bottom">
+      <section className="bg-white border-bottom py-5 py-lg-8">
         <div className="container">
-          <div className="row align-items-center text-center">
-            <div className="col-12">
-              <h1 className="h1 fw-bold text-dark mb-4 concertOne">Get In Touch</h1>
-              <p className="fs-5 text-medium mb-0 max-w-48rem mx-auto">
-                We'd love to hear from you! Whether you have questions about our robotics programs, want to schedule a demo, or just want to say hello, feel free to reach out. Our team at BitMine Robotics & Codeworld is here to help.
-              </p>
+          <div className="row align-items-center">
+            {/* Text Content - Takes full width on mobile, half on larger screens */}
+            <div className="col-12 col-lg-6 order-2 order-lg-1 py-4 py-lg-0">
+              <div className="pe-lg-5">
+                <h1 className="display-4 fw-bold text-dark mb-4 concertOne">Get In Touch</h1>
+                <p className="fs-5 text-muted mb-0">
+                  We'd love to hear from you! Whether you have questions about our robotics programs, 
+                  want to schedule a demo, or just want to say hello, our team at BitMine Robotics & 
+                  Codeworld is here to help.
+                </p>
+              </div>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Locations Section */}
-      <section className="py-5 py-md-8">
-        <div className="container">
-          <div className="mb-5">
-            <h2 className="h2 fw-bold text-dark mb-2 concertOne">Our Location</h2>
-            <p className="text-medium fs-5">Visit us at our physical location in Lagos, Nigeria</p>
-          </div>
-          
-          <div className="row g-4">
-            <div className="col-12">
-              <div className="rounded-lg overflow-hidden shadow" style={{ height: '400px' }}>
-                <iframe
-                  width="100%"
-                  height="100%"
-                  frameBorder="0"
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3964.6845621437!2d3.3711!3d6.5244!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3f6b8b8b8b8b8b8b%3A0x8b8b8b8b8b8b8b8b!2sLagos%2C%20Nigeria!5e0!3m2!1sen!2sng!4v1234567890"
-                  allowFullScreen={true}
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                  title="BitMine Robotics Location"
+            
+            {/* Image Content - Takes full width on mobile, half on larger screens */}
+            <div className="col-12 col-lg-6 order-1 order-lg-2">
+              <div className="text-center">
+                <img 
+                  src="/assets/Hero-Bg.png" 
+                  alt="BitMine Robotics Team" 
+                  className="img-fluid rounded-4 shadow-lg"
+                  style={{
+                    maxHeight: 'min(400px, 50vh)',
+                    width: 'auto',
+                    maxWidth: '100%',
+                    objectFit: 'contain'
+                  }}
                 />
               </div>
             </div>
           </div>
         </div>
       </section>
+
+
 
       {/* Contact Form Section */}
       <section className="py-5 py-md-8 bg-light">
@@ -145,7 +143,7 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h5 className="fw-bold text-dark mb-2">Phone Number</h5>
-                    <p className="text-muted mb-0">+234 XXX XXX XXXX</p>
+                    <p className="text-muted mb-0">+234 903 9404 716</p>
                   </div>
                 </div>
               </div>
@@ -160,11 +158,19 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h5 className="fw-bold text-dark mb-2">Email Address</h5>
-                    <p className="text-muted mb-0">info@bitminerobotics.com</p>
+                    <p className="text-muted mb-0">bitmineroboticscw@gmail.com</p>
                   </div>
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* WhatsApp Contact Section */}
+          <div className="concertOne d-flex justify-content-center mb-5">
+            <a href="https://wa.me/2349039404716" target="_blank" rel="noopener noreferrer" className="btn btn-success btn-lg px-5 d-inline-flex align-items-center justify-content-center">
+              <FaWhatsapp className="me-3" size={30} />
+              Ask more on WhatsApp
+            </a>
           </div>
 
           {/* Contact Form */}
@@ -271,7 +277,7 @@ export default function ContactPage() {
       </section>
 
       {/* WhatsApp Contact Section */}
-      <section className="py-5 py-md-8">
+      {/* <section className="py-5 py-md-8">
         <div className="container">
           <div className="row justify-content-center">
             <div className="col-12 col-lg-8">
@@ -294,6 +300,33 @@ export default function ContactPage() {
                   <MessageCircle size={20} />
                   <span>Chat on WhatsApp</span>
                 </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section> */}
+
+           {/* Locations Section */}
+      <section className="py-5 py-md-8">
+        <div className="container">
+          <div className="mb-5">
+            <h2 className="h2 fw-bold text-dark mb-2 concertOne">Our Location</h2>
+            <p className="text-medium fs-5">Visit us at our physical location in Lagos, Nigeria</p>
+          </div>
+          
+          <div className="row g-4">
+            <div className="col-12">
+              <div className="rounded-lg overflow-hidden shadow" style={{ height: '400px' }}>
+                <iframe
+                  width="100%"
+                  height="100%"
+                  frameBorder="0"
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3964.6845621437!2d3.3711!3d6.5244!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3f6b8b8b8b8b8b8b%3A0x8b8b8b8b8b8b8b8b!2sLagos%2C%20Nigeria!5e0!3m2!1sen!2sng!4v1234567890"
+                  allowFullScreen={true}
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  title="BitMine Robotics Location"
+                />
               </div>
             </div>
           </div>
@@ -339,6 +372,9 @@ export default function ContactPage() {
           </div>
         </div>
       </section>
+
+
+       
     </div>
   )
 }

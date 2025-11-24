@@ -1,7 +1,11 @@
 import { useState } from 'react';
-import { User, Mail, Phone, GraduationCap, Briefcase, MessageSquare, FileText } from 'lucide-react';
+import { User, Mail, Phone, GraduationCap, Briefcase, MessageSquare, FileText, CheckCircle } from 'lucide-react';
+import emailjs from '@emailjs/browser';
 
 export default function TutorPage() {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [submitError, setSubmitError] = useState('');
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -20,11 +24,55 @@ export default function TutorPage() {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission here
-    console.log('Form submitted:', formData);
-    // You can add API call or other logic here
+    setIsSubmitting(true);
+
+    try {
+      // These will be replaced with your actual EmailJS credentials
+      const serviceId = 'service_c4xxg3q';
+      const templateId = 'template_aiqy5z9';
+      const publicKey = 'DIAu_wU0XjhTN9yc8';
+
+      const templateParams = {
+        from_name: formData.fullName,
+        from_email: formData.email,
+        phone: formData.phone,
+        education: formData.education,
+        experience: formData.experience,
+        skills: formData.skills,
+        message: formData.message,
+        to_email: 'bitmineroboticscw@gmail.com' // Your Gmail address
+      };
+
+      await emailjs.send(serviceId, templateId, templateParams, publicKey);
+      
+      setSubmitSuccess(true);
+      setSubmitError('');
+
+      // Reset form
+      setFormData({
+        fullName: '',
+        email: '',
+        phone: '',
+        education: '',
+        experience: '',
+        skills: '',
+        message: ''
+      });
+
+      // Hide success message after 5 seconds
+      setTimeout(() => {
+        setSubmitSuccess(false);
+      }, 5000);
+
+    } catch (error) {
+      console.error('Error sending email:', error);
+      setSubmitError('Failed to submit application. Please try again later.');
+      setSubmitSuccess(false);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -49,7 +97,7 @@ export default function TutorPage() {
           <div className="row justify-content-center">
             <div className="col-12 col-lg-8">
               <div className="card border-0 shadow-lg rounded-4 overflow-hidden">
-                <div className="card-body p-5">
+                <div className="card-body p-lg-5 p-1">
                   <div className="text-center mb-5">
                     <h2 className="h2 fw-bold mb-3 concertOne">Become an Instructor</h2>
                     <p className="text-muted">Fill out the form below to apply as an instructor</p>
@@ -209,14 +257,42 @@ export default function TutorPage() {
                         </div>
                       </div>
 
+                      {/* Success/Error Messages */}
+                      {submitSuccess && (
+                        <div className="col-12 mb-4">
+                          <div className="alert alert-success d-flex align-items-center gap-3" role="alert">
+                            <CheckCircle size={24} />
+                            <div>
+                              <strong>Success!</strong> Your application has been submitted. We'll get back to you soon.
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                      
+                      {submitError && (
+                        <div className="col-12 mb-4">
+                          <div className="alert alert-danger d-flex align-items-center gap-3" role="alert">
+                            <div>
+                              <strong>Error:</strong> {submitError}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
                       {/* Submit Button */}
                       <div className="col-12 mt-4">
                         <button
                           type="submit"
-                          className="btn btn-primary btn-lg w-100 py-3 fw-semibold"
+                          className="btn btn-primary btn-lg w-100 py-3 fw-semibold d-flex align-items-center justify-content-center gap-2"
                           style={{ background: 'linear-gradient(135deg, #0066FF 0%, #0052CC 100%' }}
+                          disabled={isSubmitting}
                         >
-                          Submit Application
+                          {isSubmitting ? (
+                            <>
+                              <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                              Submitting...
+                            </>
+                          ) : 'Submit Application'}
                         </button>
                       </div>
                     </div>

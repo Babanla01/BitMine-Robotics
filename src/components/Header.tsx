@@ -8,7 +8,15 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const { state: cartState } = useContext(CartContext)
 
-  const toggleMenu = () => setIsMenuOpen(!isMenuOpen)
+  const toggleMenu = () => {
+    // Toggle body class to prevent scrolling when menu is open
+    if (!isMenuOpen) {
+      document.body.classList.add('menu-open');
+    } else {
+      document.body.classList.remove('menu-open');
+    }
+    setIsMenuOpen(!isMenuOpen);
+  }
 
   return (
     <>
@@ -78,12 +86,11 @@ export default function Header() {
       </header>
 
       {/* Mobile Side Navigation Overlay */}
-      {isMenuOpen && (
-        <div
-          className="position-fixed top-0 start-0 w-100 h-100 bg-dark bg-opacity-50 overlay-z-1040"
-          onClick={toggleMenu}
-        ></div>
-      )}
+      <div
+        className={`position-fixed top-0 start-0 w-100 h-100 bg-dark bg-opacity-50 overlay-z-1040 transition-all ${isMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible'}`}
+        onClick={toggleMenu}
+        style={{ transition: 'opacity 0.3s ease-in-out' }}
+      ></div>
 
       {/* Mobile Side Navigation */}
       <div
@@ -121,6 +128,15 @@ export default function Header() {
                   onClick={toggleMenu}
                 >
                   About
+                </Link>
+              </li>
+              <li className="mb-3">
+                <Link
+                  to="/shop"
+                  className="text-decoration-none text-dark fs-4 fw-medium d-block py-2"
+                  onClick={toggleMenu}
+                >
+                  Shop
                 </Link>
               </li>
               <li className="mb-3">

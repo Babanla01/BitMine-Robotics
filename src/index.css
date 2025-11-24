@@ -295,8 +295,108 @@ main {
   z-index: 1050;
 }
 
-.transition-transform {
+/* Mobile Navigation Styles */
+.overlay-z-1040 {
+  z-index: 1040;
+  opacity: 1;
+  transition: opacity 0.3s ease-in-out;
+}
+
+/* Mobile Drawer */
+.position-fixed {
+  z-index: 1050;
   transition: transform 0.3s ease-in-out;
+  width: 320px;
+  max-width: 85vw;
+}
+
+.drawer-open {
+  transform: translateX(0);
+  box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+}
+
+.drawer-closed {
+  transform: translateX(100%);
+}
+
+/* Ensure the body doesn't scroll when mobile menu is open */
+body.menu-open {
+  overflow: hidden;
+  height: 100vh;
+}
+
+/* Responsive adjustments */
+@media (max-width: 767.98px) {
+  .navbar-collapse {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: white;
+    z-index: 1040;
+    padding: 1.5rem;
+    transform: translateX(100%);
+    transition: transform 0.3s ease-in-out;
+  }
+  
+  .navbar-collapse.show {
+    transform: translateX(0);
+  }
+  
+  .navbar-nav {
+    padding-top: 3rem;
+  }
+  
+  .nav-item {
+    margin-bottom: 1rem;
+  }
+  
+  .btn-close-menu {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 1050;
+  }
+}
+
+/* Cart badge styling */
+.cart-badge {
+  font-size: 0.6rem;
+  padding: 0.2rem 0.4rem;
+  min-width: 1.2rem;
+  height: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Header logo */
+.header-logo {
+  height: 40px;
+  width: auto;
+}
+
+/* Drawer logo */
+.drawer-logo {
+  height: 35px;
+  width: auto;
+}
+
+/* Smooth transitions for interactive elements */
+a, button, .btn {
+  transition: all 0.2s ease-in-out;
+}
+
+a:hover, button:hover, .btn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+/* Focus states for accessibility */
+a:focus, button:focus, .btn:focus {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
 }
 
 

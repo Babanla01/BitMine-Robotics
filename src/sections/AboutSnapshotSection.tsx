@@ -43,7 +43,7 @@ export default function AboutSnapshotSection() {
 
             {/* CTA Buttons */}
             <div className="concertOne">
-              <a href="https://wa.me/2340000000000" target="_blank" rel="noopener noreferrer" className="btn btn-success btn-lg px-5 d-inline-flex align-items-center justify-content-center">
+              <a href="https://wa.me/2349039404716" target="_blank" rel="noopener noreferrer" className="btn btn-success btn-lg px-5 d-inline-flex align-items-center justify-content-center">
                 <FaWhatsapp className="me-3" size={30} />
                 Ask more on WhatsApp
               </a>
