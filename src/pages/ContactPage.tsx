@@ -70,6 +70,11 @@ export default function ContactPage() {
   // const whatsappMessage = 'Hello%20BitMine%20Robotics%2C%20I%20would%20like%20to%20get%20in%20touch';
   // const whatsappLink = `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`;
 
+    const phoneNumber = '2349039404716'; // Your WhatsApp number without the '+' sign
+  const message = 'Hello, I have a question about BitMine Robotics';
+  
+  const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+
   return (
     <div className="bg-light">
       {/* Header Section */}
@@ -167,7 +172,7 @@ export default function ContactPage() {
 
           {/* WhatsApp Contact Section */}
           <div className="concertOne d-flex justify-content-center mb-5">
-            <a href="https://wa.me/2349039404716" target="_blank" rel="noopener noreferrer" className="btn btn-success btn-lg px-5 d-inline-flex align-items-center justify-content-center">
+            <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="btn btn-success btn-lg px-5 d-inline-flex align-items-center justify-content-center">
               <FaWhatsapp className="me-3" size={30} />
               Ask more on WhatsApp
             </a>
@@ -176,7 +181,7 @@ export default function ContactPage() {
           {/* Contact Form */}
           <div className="row justify-content-center">
             <div className="col-12 col-lg-8">
-              <div className="bg-white rounded-3 p-5 shadow-lg">
+              <div className="bg-white rounded-3 p-3 py-5 p-lg-5 shadow-lg">
                 {submitSuccess && (
                   <div className="alert alert-success d-flex align-items-center gap-3 mb-4" role="alert">
                     <CheckCircle size={24} />
