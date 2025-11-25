@@ -64,6 +64,11 @@ export default function Header() {
                     Tutoring
                   </Link>
                 </li>
+                <li className="nav-item">
+                  <Link to="/partner" className="nav-link fs-5 fw-medium">
+                    Partner
+                  </Link>
+                </li>
                 <li className="nav-item position-relative d-flex align-items-center me-2">
                   <Link to="/cart" className="btn btn-light px-3 position-relative cart-icon-btn">
                     <ShoppingCart />
@@ -155,6 +160,15 @@ export default function Header() {
                   onClick={toggleMenu}
                 >
                   Tutoring
+                </Link>
+              </li>
+              <li className="mb-3">
+                <Link
+                  to="/partner"
+                  className="text-decoration-none text-dark fs-4 fw-medium d-block py-2"
+                  onClick={toggleMenu}
+                >
+                  Partner With Us
                 </Link>
               </li>
             </ul>
