@@ -1,0 +1,43 @@
+{
+  "description": "Temporary test user data for development. Edit this file to test different user roles and data.",
+  "instructions": "Copy the desired user object into your browser's localStorage under the key 'bitmine-auth' or use the dev tools.",
+  "testUsers": {
+    "regularUser": {
+      "isAuthenticated": true,
+      "user": {
+        "name": "John Doe",
+        "email": "john@example.com",
+        "role": "user"
+      }
+    },
+    "adminUser": {
+      "isAuthenticated": true,
+      "user": {
+        "name": "Admin User",
+        "email": "admin@example.com",
+        "role": "admin"
+      }
+    },
+    "anotherUser": {
+      "isAuthenticated": true,
+      "user": {
+        "name": "Jane Smith",
+        "email": "jane@example.com",
+        "role": "user"
+      }
+    },
+    "notAuthenticated": {
+      "isAuthenticated": false,
+      "user": null
+    }
+  },
+  "howToUseInBrowser": [
+    "1. Open your browser DevTools (F12 or right-click → Inspect)",
+    "2. Go to Application tab → LocalStorage",
+    "3. Find your domain (e.g., http://localhost:5175)",
+    "4. Click on the 'bitmine-auth' key",
+    "5. Replace the value with one of the test users above (the entire object starting with { and ending with })",
+    "6. Refresh the page",
+    "7. The app will load with the test user data"
+  ]
+}

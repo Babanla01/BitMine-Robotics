@@ -39,6 +39,15 @@ export default defineConfig([
 ])
 ```
 
+## Dashboard access (UI)
+
+If you're trying to reach the app dashboard from the UI:
+
+- Users are redirected to the protected dashboard at `/dashboard` immediately after they sign in or sign up.
+- The header now shows a "Dashboard" link when a user is authenticated and a "Sign out" action to log out.
+
+If you still can't reach the dashboard make sure you're signed in first; if problems persist check the browser console and the `AuthContext` (localStorage key `bitmine-auth`).
+
 You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
 
 ```js
