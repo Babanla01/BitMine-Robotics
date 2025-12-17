@@ -58,12 +58,15 @@ const app = express();
           'http://localhost:5178',
           process.env.FRONTEND_URL
         ].filter(Boolean);
-        
+
         if (!origin || allowedOrigins.includes(origin)) {
-          callback(null, true);
-        } else {
-          callback(new Error('Not allowed by CORS'));
+          return callback(null, true);
         }
+
+        // Don't throw an Error here — return false so CORS middleware
+        // will not allow the origin and will avoid causing a 500.
+        console.warn('Blocked CORS request from origin:', origin);
+        return callback(null, false);
       },
       credentials: true
     }));
