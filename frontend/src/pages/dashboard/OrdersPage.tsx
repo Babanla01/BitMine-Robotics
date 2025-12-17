@@ -23,6 +23,7 @@ interface OrderType {
   city: string;
   state: string;
   postal_code: string;
+  country?: string;
   subtotal: number;
   delivery_fee: number;
   total_amount: number;
@@ -182,8 +183,8 @@ const OrdersPage = () => {
       title: 'Total',
       dataIndex: 'total_amount',
       key: 'total_amount',
-      render: (total) => `₦${parseFloat(total).toLocaleString('en-NG')}`,
-      sorter: (a, b) => parseFloat(a.total_amount) - parseFloat(b.total_amount),
+      render: (total) => `₦${parseFloat(String(total)).toLocaleString('en-NG')}`,
+      sorter: (a, b) => parseFloat(String(a.total_amount)) - parseFloat(String(b.total_amount)),
     },
     {
       title: 'Status',

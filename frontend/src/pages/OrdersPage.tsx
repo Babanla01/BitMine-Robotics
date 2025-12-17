@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
-import { ArrowLeft, Package, Calendar, MapPin, DollarSign } from 'lucide-react';
+import { ArrowLeft, Package, Calendar, MapPin } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 interface OrderItem {

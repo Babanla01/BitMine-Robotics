@@ -1,5 +1,5 @@
 import { Card, Row, Col, Select } from 'antd';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
 import { useEffect, useState } from 'react';
 
 const { Option } = Select;
@@ -107,6 +107,14 @@ const AnalyticsPage = () => {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="p-4">
+        <p>Loading analytics...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="p-2 sm:p-4">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
@@ -179,7 +187,7 @@ const AnalyticsPage = () => {
                     outerRadius={70}
                     fill="#8884d8"
                     dataKey="value"
-                    label={({ name, percent = 0 }) => `${(percent * 100).toFixed(0)}%`}
+                    label={({ percent = 0 }) => `${(percent * 100).toFixed(0)}%`}
                   >
                     {categoryData.map((_, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />

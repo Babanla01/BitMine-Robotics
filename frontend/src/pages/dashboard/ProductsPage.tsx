@@ -272,7 +272,7 @@ const ProductsPage = () => {
         open={isModalVisible}
         onCancel={() => setIsModalVisible(false)}
         footer={null}
-        width={Math.min(500, window.innerWidth - 20)}
+        width={modalWidth}
         centered
         bodyStyle={{ padding: '12px 14px' }}
       >

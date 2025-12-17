@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { User, Mail, Phone, Calendar, Clock, MessageSquare, CheckCircle } from 'lucide-react';
+import { User, Mail, Phone, MessageSquare, CheckCircle } from 'lucide-react';
 import emailjs from '@emailjs/browser';
 import { useNavigate } from 'react-router-dom';
 

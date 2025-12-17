@@ -4,10 +4,10 @@ import { GraduationCap } from 'lucide-react';
 import { useRef } from 'react';
 
 export default function TutorPage() {
-  const bookClassRef = useRef<HTMLDivElement>(null);
-  const becomeATutorRef = useRef<HTMLDivElement>(null);
+  const bookClassRef = useRef<HTMLDivElement | null>(null);
+  const becomeATutorRef = useRef<HTMLDivElement | null>(null);
 
-  const scrollToSection = (ref: React.RefObject<HTMLDivElement>) => {
+  const scrollToSection = (ref: React.RefObject<HTMLDivElement | null>) => {
     ref.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
