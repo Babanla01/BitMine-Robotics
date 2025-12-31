@@ -57,10 +57,25 @@ export async function apiCall(
     headers,
   });
 
-  const data = await response.json();
+  // Try to parse JSON, but fall back to text for non-JSON responses
+  let data: any = null;
+  const contentType = response.headers.get('content-type') || '';
+  if (contentType.includes('application/json')) {
+    try {
+      data = await response.json();
+    } catch (err) {
+      // malformed JSON
+      const text = await response.text();
+      throw new Error(`API returned malformed JSON: ${text}`);
+    }
+  } else {
+    data = await response.text();
+  }
 
   if (!response.ok) {
-    throw new Error(data.error || `API Error: ${response.status}`);
+    // If JSON, prefer error field; otherwise include raw text
+    const message = data && data.error ? data.error : (typeof data === 'string' ? data : `API Error: ${response.status}`);
+    throw new Error(message);
   }
 
   return data;

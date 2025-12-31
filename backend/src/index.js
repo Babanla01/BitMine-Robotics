@@ -7,9 +7,43 @@ import compression from 'compression';
 import { logError, logRequest } from './utils/logger.js';
 import initializeDatabase from './database/init.js';
 import migrateDatabase from './database/migrate.js';
+import startRefreshTokenCleanup from './jobs/refreshTokenCleanup.js';
 
 // Load environment variables
 dotenv.config();
+
+// ✅ SECURITY: Validate required environment variables at startup
+const requiredEnvVars = [
+  'JWT_SECRET',
+  'EMAIL_USER',
+  'EMAIL_PASSWORD',
+  'PAYSTACK_SECRET_KEY',
+  'PAYSTACK_PUBLIC_KEY',
+  'DB_HOST',
+  'DB_PORT',
+  'DB_NAME',
+  'DB_USER',
+  'DB_PASSWORD'
+];
+
+const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
+if (missingVars.length > 0) {
+  console.error('❌ CRITICAL: Missing required environment variables:', missingVars.join(', '));
+  console.error('Please check your .env file and ensure all required variables are set.');
+  process.exit(1);
+}
+
+// ✅ SECURITY: Warn if running in development with non-standard secrets
+if (process.env.NODE_ENV === 'production') {
+  if (process.env.JWT_SECRET.length < 32) {
+    console.error('❌ CRITICAL: JWT_SECRET must be at least 32 characters in production');
+    process.exit(1);
+  }
+  if (process.env.JWT_SECRET.includes('change_in_production') || process.env.JWT_SECRET.includes('secret')) {
+    console.error('❌ CRITICAL: Do not use default/example JWT_SECRET values in production');
+    process.exit(1);
+  }
+}
 
 // Import routes
 import authRoutes from './routes/auth.js';
@@ -36,6 +70,13 @@ const app = express();
     
     // Run database migrations
     await migrateDatabase();
+
+    // Start refresh token cleanup job (periodic)
+    try {
+      startRefreshTokenCleanup();
+    } catch (err) {
+      console.error('Failed to start refresh token cleanup job:', err && err.message ? err.message : err);
+    }
 
     // Middleware
     app.use(express.json());

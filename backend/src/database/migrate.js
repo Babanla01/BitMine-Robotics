@@ -66,6 +66,53 @@ async function migrateDatabase() {
       console.error('Error adding profile_completed column:', err.message);
     }
 
+    // Add account lockout columns to users if they don't exist
+    try {
+      const lockoutCheck = await pool.query(`
+        SELECT column_name FROM information_schema.columns 
+        WHERE table_name = 'users' AND column_name IN ('failed_login_attempts', 'locked_until')
+      `);
+
+      const existing = lockoutCheck.rows.map(r => r.column_name);
+      if (!existing.includes('failed_login_attempts')) {
+        console.log('Adding failed_login_attempts column to users...');
+        await pool.query(`ALTER TABLE users ADD COLUMN failed_login_attempts INTEGER DEFAULT 0`);
+        console.log('✅ failed_login_attempts column added');
+      }
+      if (!existing.includes('locked_until')) {
+        console.log('Adding locked_until column to users...');
+        await pool.query(`ALTER TABLE users ADD COLUMN locked_until TIMESTAMP WITH TIME ZONE`);
+        console.log('✅ locked_until column added');
+      }
+    } catch (err) {
+      console.error('Error adding account lockout columns:', err.message);
+    }
+
+    // Create refresh_tokens table if it doesn't exist
+    try {
+      const refreshCheck = await pool.query(`
+        SELECT table_name FROM information_schema.tables WHERE table_name = 'refresh_tokens'
+      `);
+
+      if (refreshCheck.rows.length === 0) {
+        console.log('Creating refresh_tokens table...');
+        await pool.query(`
+          CREATE TABLE refresh_tokens (
+            id SERIAL PRIMARY KEY,
+            user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+            token TEXT NOT NULL,
+            revoked BOOLEAN DEFAULT FALSE,
+            expires_at TIMESTAMP WITH TIME ZONE,
+            created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+          )
+        `);
+        await pool.query(`CREATE INDEX idx_refresh_tokens_token ON refresh_tokens(token)`);
+        console.log('✅ refresh_tokens table created');
+      }
+    } catch (err) {
+      console.error('Error creating refresh_tokens table:', err.message);
+    }
+
     console.log('✅ Database migrations complete');
   } catch (error) {
     console.error('❌ Database migration failed:', error.message);
