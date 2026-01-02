@@ -3,6 +3,7 @@ import type { FormEvent } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
 import { useNavigate } from 'react-router-dom'
+import { API_BASE_URL } from '../config/api'
 
 const NIGERIAN_STATES = [
   'Lagos', 'Abuja', 'Port Harcourt', 'Kano', 'Ibadan', 'Kaduna', 'Enugu', 'Calabar', 'Warri',
@@ -11,7 +12,7 @@ const NIGERIAN_STATES = [
 ]
 
 export default function ProfilePage() {
-  const { user } = useAuth()
+  const { user, token } = useAuth()
   const { addToast } = useToast()
   const navigate = useNavigate()
   const [formData, setFormData] = useState({
@@ -31,7 +32,12 @@ export default function ProfilePage() {
     // Fetch existing profile data if available
     const fetchProfile = async () => {
       try {
-        const response = await fetch(`http://localhost:5001/api/admin/profile/${user.id}`)
+        if (!token) return
+        const response = await fetch(`${API_BASE_URL}/admin/profile/${user.id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        })
         if (response.ok) {
           const data = await response.json()
           setFormData(prev => ({
@@ -68,10 +74,11 @@ export default function ProfilePage() {
 
     setIsLoading(true)
     try {
-      const response = await fetch(`http://localhost:5001/api/admin/profile/${user.id}`, {
+      const response = await fetch(`${API_BASE_URL}/admin/profile/${user.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
+          , Authorization: `Bearer ${token}`
         },
         body: JSON.stringify(formData)
       })
