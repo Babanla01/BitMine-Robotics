@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { API_BASE_URL } from '../../config/api';
+import { useAuth } from '../../context/AuthContext';
 import { Table, Tag, Space, Button, Input, Card, Modal, message, Select, Drawer, Divider } from 'antd';
 import { SearchOutlined, EyeOutlined, DeleteOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
@@ -42,6 +44,8 @@ const OrdersPage = () => {
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
 
+  const { token } = useAuth();
+
   useEffect(() => {
     fetchOrders();
   }, []);
@@ -49,7 +53,9 @@ const OrdersPage = () => {
   const fetchOrders = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:5001/api/orders/all/list');
+      const headers: Record<string, string> = {};
+      if (token) headers.Authorization = `Bearer ${token}`;
+      const response = await fetch(`${API_BASE_URL}/orders/all/list`, { headers });
       if (!response.ok) {
         throw new Error('Failed to fetch orders');
       }
@@ -69,7 +75,9 @@ const OrdersPage = () => {
 
   const viewOrderDetails = async (record: OrderType) => {
     try {
-      const response = await fetch(`http://localhost:5001/api/orders/detail/${record.id}`);
+      const headers: Record<string, string> = {};
+      if (token) headers.Authorization = `Bearer ${token}`;
+      const response = await fetch(`${API_BASE_URL}/orders/detail/${record.id}`, { headers });
       if (!response.ok) {
         throw new Error('Failed to fetch order details');
       }
@@ -85,11 +93,11 @@ const OrdersPage = () => {
   const updateOrderStatus = async (orderId: number, newStatus: 'processing' | 'shipped' | 'delivered' | 'cancelled') => {
     try {
       setIsUpdatingStatus(true);
-      const response = await fetch(`http://localhost:5001/api/orders/${orderId}/status`, {
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (token) headers.Authorization = `Bearer ${token}`;
+      const response = await fetch(`${API_BASE_URL}/orders/${orderId}/status`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers,
         body: JSON.stringify({ order_status: newStatus })
       });
 
@@ -117,7 +125,7 @@ const OrdersPage = () => {
       cancelText: 'No',
       onOk: async () => {
         try {
-          const response = await fetch(`http://localhost:5001/api/orders/${record.id}/cancel`, {
+          const response = await fetch(`${API_BASE_URL}/orders/${record.id}/cancel`, {
             method: 'PUT'
           });
 

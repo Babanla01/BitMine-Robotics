@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Table, Button, Space, Input, Card, Modal, Form, InputNumber, Upload, message, Select, Tag } from 'antd';
 import { SearchOutlined, PlusOutlined, UploadOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
-import { API, apiCall } from '../../config/api';
+import { API, apiCall, API_BASE_URL } from '../../config/api';
 import { useAuth } from '../../context/AuthContext';
 
 interface ProductType {
@@ -50,8 +50,9 @@ const ProductsPage = () => {
         // Convert relative URLs to absolute URLs
         if (imageUrl) {
           if (imageUrl.startsWith('/uploads/')) {
-            // Already an uploads path, make it absolute
-            imageUrl = `http://localhost:5001${imageUrl}`;
+            // Make uploads path absolute using API_BASE_URL root
+            const apiRoot = API_BASE_URL.replace(/\/api\/?$/i, '')
+            imageUrl = `${apiRoot}${imageUrl}`;
           } else if (imageUrl.startsWith('/assets/') || !imageUrl.startsWith('http')) {
             // For old asset paths or any relative path, keep as is
             // The onError handler will display a placeholder
@@ -188,7 +189,7 @@ const ProductsPage = () => {
       const formData = new FormData();
       formData.append('image', file);
 
-      const response = await fetch('http://localhost:5001/api/upload/image', {
+      const response = await fetch(`${API_BASE_URL}/upload/image`, {
         method: 'POST',
         body: formData,
         headers: {

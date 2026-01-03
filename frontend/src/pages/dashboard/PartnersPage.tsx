@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { API_BASE_URL } from '../../config/api';
+import { useAuth } from '../../context/AuthContext';
 import { Table, Button, Space, Tag, Modal, Card, Input, message } from 'antd';
 import { SearchOutlined, CheckOutlined, CloseOutlined, EyeOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
@@ -34,6 +36,8 @@ const PartnersPage = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  const { token } = useAuth();
+
   useEffect(() => {
     fetchPartnerApplications();
   }, []);
@@ -41,7 +45,9 @@ const PartnersPage = () => {
   const fetchPartnerApplications = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:5001/api/partner');
+      const headers: Record<string, string> = {};
+      if (token) headers.Authorization = `Bearer ${token}`;
+      const response = await fetch(`${API_BASE_URL}/partner`, { headers });
       if (!response.ok) {
         throw new Error('Failed to fetch partner applications');
       }
@@ -61,11 +67,11 @@ const PartnersPage = () => {
 
   const handleStatusChange = async (record: PartnerApplication, newStatus: 'approved' | 'rejected' | 'under_review') => {
     try {
-      const response = await fetch(`http://localhost:5001/api/partner/${record.id}/status`, {
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (token) headers.Authorization = `Bearer ${token}`;
+      const response = await fetch(`${API_BASE_URL}/partner/${record.id}/status`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers,
         body: JSON.stringify({ status: newStatus })
       });
 

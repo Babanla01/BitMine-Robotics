@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { API_BASE_URL } from '../config/api';
 import { User, Mail, Phone, MessageSquare, CheckCircle } from 'lucide-react';
 import emailjs from '@emailjs/browser';
 import { useNavigate } from 'react-router-dom';
@@ -67,7 +68,7 @@ export default function BookClassPage() {
       const duration = courseDurations[bookingFormData.courseType];
 
       // Submit booking to backend
-      const bookingResponse = await fetch('http://localhost:5001/api/booking', {
+      const bookingResponse = await fetch(`${API_BASE_URL}/booking`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

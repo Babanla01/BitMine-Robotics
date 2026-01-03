@@ -1,6 +1,7 @@
 import { Card, Row, Col, Select } from 'antd';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
 import { useEffect, useState } from 'react';
+import { API_BASE_URL } from '../../config/api';
 
 const { Option } = Select;
 
@@ -51,11 +52,11 @@ const AnalyticsPage = () => {
       setLoading(true);
 
       // Fetch orders data
-      const ordersResponse = await fetch('http://localhost:5001/api/orders/all/list');
+      const ordersResponse = await fetch(`${API_BASE_URL}/orders/all/list`);
       const ordersData: Order[] = ordersResponse.ok ? await ordersResponse.json() : [];
 
       // Fetch users count
-      const usersResponse = await fetch('http://localhost:5001/api/users');
+      const usersResponse = await fetch(`${API_BASE_URL}/users`);
       const usersData = usersResponse.ok ? await usersResponse.json() : [];
 
       // Calculate stats

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { API_BASE_URL } from '../../config/api';
 import { Table, Button, Space, Modal, Form, Input, Select, Tag, Popconfirm, message, Spin } from 'antd';
 import { EditOutlined, DeleteOutlined, EyeOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
@@ -29,7 +30,7 @@ const ClassesPage = () => {
   const fetchBookings = async () => {
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:5001/api/booking');
+      const response = await fetch(`${API_BASE_URL}/booking`);
       if (!response.ok) {
         throw new Error('Failed to fetch bookings');
       }
@@ -73,7 +74,7 @@ const ClassesPage = () => {
     if (!selectedBooking) return;
 
     try {
-      const response = await fetch(`http://localhost:5001/api/booking/${selectedBooking.id}`, {
+      const response = await fetch(`${API_BASE_URL}/booking/${selectedBooking.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -99,7 +100,7 @@ const ClassesPage = () => {
   // Handle delete booking
   const handleDelete = async (id: string) => {
     try {
-      const response = await fetch(`http://localhost:5001/api/booking/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/booking/${id}`, {
         method: 'DELETE',
       });
 

@@ -2,6 +2,7 @@ import { useEffect, useContext, useRef } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { CartContext } from '../context/CartContext'
 import { useToast } from '../context/ToastContext'
+import { API_BASE_URL } from '../config/api'
 
 export default function PaymentCallbackPage() {
   const navigate = useNavigate()
@@ -29,7 +30,7 @@ export default function PaymentCallbackPage() {
         }
 
         // Verify payment with backend
-        const verifyResponse = await fetch('http://localhost:5001/api/orders/verify-payment', {
+        const verifyResponse = await fetch(`${API_BASE_URL}/orders/verify-payment`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ reference }),

@@ -1,4 +1,5 @@
 import { useContext, useState, useEffect } from 'react'
+import { API_BASE_URL } from '../config/api'
 import { useNavigate } from 'react-router-dom'
 import { CartContext } from '../context/CartContext'
 import { useToast } from '../context/ToastContext'
@@ -47,7 +48,7 @@ export default function CartPage() {
 
   const fetchDeliveryZones = async () => {
     try {
-      const response = await fetch('http://localhost:5001/api/orders/delivery-zones')
+      const response = await fetch(`${API_BASE_URL}/orders/delivery-zones`)
       if (!response.ok) throw new Error('Failed to fetch delivery zones')
       // Zones fetched but not needed for simplified checkout
     } catch (error) {
@@ -60,7 +61,7 @@ export default function CartPage() {
     if (!user?.id) return
     setProfileLoading(true)
     try {
-      const response = await fetch(`http://localhost:5001/api/admin/profile/${user.id}`)
+      const response = await fetch(`${API_BASE_URL}/admin/profile/${user.id}`)
       if (response.ok) {
         const data = await response.json()
         setUserProfile(data.user)
@@ -80,7 +81,7 @@ export default function CartPage() {
 
   const handleStateChange = async (state: string) => {
     try {
-      const response = await fetch(`http://localhost:5001/api/orders/delivery-fee/${state}`)
+      const response = await fetch(`${API_BASE_URL}/orders/delivery-fee/${state}`)
       if (!response.ok) throw new Error('Failed to fetch delivery fee')
       const data = await response.json()
       setDeliveryFee(data.delivery_fee)
@@ -142,7 +143,7 @@ export default function CartPage() {
         total_amount: Number(total),
       }
 
-      const response = await fetch('http://localhost:5001/api/orders/initialize-payment', {
+      const response = await fetch(`${API_BASE_URL}/orders/initialize-payment`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(orderData),

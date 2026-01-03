@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { API_BASE_URL } from '../config/api';
 import { User, Mail, Phone, GraduationCap, Briefcase, MessageSquare, FileText, CheckCircle, Upload } from 'lucide-react';
 import emailjs from '@emailjs/browser';
 import { useNavigate } from 'react-router-dom';
@@ -70,7 +71,7 @@ export default function BecomeATutorPage() {
       const uploadFormData = new FormData();
       uploadFormData.append('file', cvFile);
 
-      const uploadResponse = await fetch('http://localhost:5001/api/upload', {
+      const uploadResponse = await fetch(`${API_BASE_URL}/upload`, {
         method: 'POST',
         body: uploadFormData
       });
@@ -83,7 +84,7 @@ export default function BecomeATutorPage() {
       const uploadedFile = await uploadResponse.json();
 
       // Submit tutor application
-      const applicationResponse = await fetch('http://localhost:5001/api/tutor', {
+      const applicationResponse = await fetch(`${API_BASE_URL}/tutor`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

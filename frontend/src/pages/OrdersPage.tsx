@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { API_BASE_URL } from '../config/api';
 import { useToast } from '../context/ToastContext';
 import { ArrowLeft, Package, Calendar, MapPin } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -42,7 +43,7 @@ export default function OrdersPage() {
   const fetchUserOrders = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`http://localhost:5001/api/orders/customer/${user?.email}`);
+      const response = await fetch(`${API_BASE_URL}/orders/customer/${user?.email}`);
       if (response.ok) {
         const data = await response.json();
         setOrders(data);
@@ -59,7 +60,7 @@ export default function OrdersPage() {
 
   const fetchOrderDetails = async (orderId: number) => {
     try {
-      const response = await fetch(`http://localhost:5001/api/orders/detail/${orderId}`);
+      const response = await fetch(`${API_BASE_URL}/orders/detail/${orderId}`);
       if (response.ok) {
         const data = await response.json();
         setOrderItems(data.items || []);

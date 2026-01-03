@@ -1,5 +1,7 @@
 import { ArrowUpOutlined, ShoppingCartOutlined, UserOutlined, DollarOutlined } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
+import { API_BASE_URL } from '../../config/api';
+import { useAuth } from '../../context/AuthContext';
 
 interface Stat {
   title: string;
@@ -29,6 +31,8 @@ const DashboardHome = () => {
   const [recentOrders, setRecentOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const { token } = useAuth();
+
   useEffect(() => {
     fetchDashboardData();
   }, []);
@@ -38,17 +42,21 @@ const DashboardHome = () => {
       setLoading(true);
       
       // Fetch users count
-      const usersResponse = await fetch('http://localhost:5001/api/admin/users');
+      const usersHeaders: Record<string, string> = {};
+      if (token) usersHeaders.Authorization = `Bearer ${token}`;
+      const usersResponse = await fetch(`${API_BASE_URL}/admin/users`, { headers: usersHeaders });
       const usersData = usersResponse.ok ? await usersResponse.json() : [];
       const totalUsers = usersData.length;
 
       // Fetch products count
-      const productsResponse = await fetch('http://localhost:5001/api/products');
+      const productsResponse = await fetch(`${API_BASE_URL}/products`);
       const productsData = productsResponse.ok ? await productsResponse.json() : [];
       const totalProducts = productsData.length;
 
       // Fetch orders
-      const ordersResponse = await fetch('http://localhost:5001/api/orders/all/list');
+      const ordersHeaders: Record<string, string> = {};
+      if (token) ordersHeaders.Authorization = `Bearer ${token}`;
+      const ordersResponse = await fetch(`${API_BASE_URL}/orders/all/list`, { headers: ordersHeaders });
       const ordersData = ordersResponse.ok ? await ordersResponse.json() : [];
       const totalOrders = ordersData.length;
       const totalRevenue = ordersData.reduce((sum: number, order: Order) => sum + parseFloat(order.total_amount.toString()), 0);

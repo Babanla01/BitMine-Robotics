@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { useAuth } from '../../context/AuthContext';
+import { API_BASE_URL } from '../../config/api';
 import { Table, Button, Space, Input, Card, Modal, Form, message, Tag } from 'antd';
 import { SearchOutlined, PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
@@ -23,6 +25,8 @@ const UsersPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const formRef = useRef<FormInstance>(null);
 
+  const { token } = useAuth();
+
   useEffect(() => {
     fetchUsers();
   }, []);
@@ -30,7 +34,9 @@ const UsersPage = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:5001/api/admin/users');
+      const headers: Record<string, string> = {};
+      if (token) headers.Authorization = `Bearer ${token}`;
+      const response = await fetch(`${API_BASE_URL}/admin/users`, { headers });
       if (!response.ok) {
         throw new Error('Failed to fetch users');
       }
@@ -73,9 +79,9 @@ const UsersPage = () => {
       cancelText: 'Cancel',
       onOk: async () => {
         try {
-          const response = await fetch(`http://localhost:5001/api/admin/users/${user.id}`, {
-            method: 'DELETE',
-          });
+          const headers: Record<string, string> = {};
+          if (token) headers.Authorization = `Bearer ${token}`;
+          const response = await fetch(`${API_BASE_URL}/admin/users/${user.id}`, { method: 'DELETE', headers });
           if (!response.ok) {
             throw new Error('Failed to delete user');
           }
@@ -95,11 +101,11 @@ const UsersPage = () => {
       
       if (editingUser) {
         // Update existing user
-        const response = await fetch(`http://localhost:5001/api/admin/users/${editingUser.id}`, {
+        const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+        if (token) headers.Authorization = `Bearer ${token}`;
+        const response = await fetch(`${API_BASE_URL}/admin/users/${editingUser.id}`, {
           method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json'
-          },
+          headers,
           body: JSON.stringify({
             name: values.name,
             email: values.email,
@@ -113,11 +119,11 @@ const UsersPage = () => {
         message.success('User updated successfully');
       } else {
         // Create new user
-        const response = await fetch('http://localhost:5001/api/admin/users', {
+        const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+        if (token) headers.Authorization = `Bearer ${token}`;
+        const response = await fetch(`${API_BASE_URL}/admin/users`, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
+          headers,
           body: JSON.stringify({
             name: values.name,
             email: values.email,

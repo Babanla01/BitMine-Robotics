@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { API_BASE_URL } from '../config/api';
 import { Building2, User, Mail, Phone, Briefcase, MessageSquare, CheckCircle } from 'lucide-react';
 import emailjs from '@emailjs/browser';
 
@@ -32,7 +33,7 @@ export default function PartnerPage() {
       console.log('Submitting partnership application:', formData);
       
       // Step 1: Submit application to backend
-      const applicationResponse = await fetch('http://localhost:5001/api/partner', {
+      const applicationResponse = await fetch(`${API_BASE_URL}/partner`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

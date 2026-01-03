@@ -2,7 +2,7 @@ import { useContext, useState, useEffect } from 'react';
 import { CartContext } from '../context/CartContext';
 import { useToast } from '../context/ToastContext';
 import { Filter, Search, ShoppingCart, ChevronLeft, ChevronRight } from 'lucide-react';
-import { API, apiCall } from '../config/api';
+import { API, apiCall, API_BASE_URL } from '../config/api';
 import '../index.css';
 
 interface Product {
@@ -49,10 +49,11 @@ export default function ShopPage() {
           let imageUrl = product.image_url;
           
           // Convert relative URLs to absolute URLs
-          if (imageUrl) {
+            if (imageUrl) {
             if (imageUrl.startsWith('/uploads/')) {
-              // Already an uploads path, make it absolute
-              imageUrl = `http://localhost:5001${imageUrl}`;
+              // Already an uploads path, make it absolute using API root
+              const apiRoot = API_BASE_URL.replace(/\/api\/?$/i, '')
+              imageUrl = `${apiRoot}${imageUrl}`;
             } else if (imageUrl.startsWith('/assets/') || !imageUrl.startsWith('http')) {
               // For old asset paths or any relative path, keep as is
               // The onError handler will display a placeholder

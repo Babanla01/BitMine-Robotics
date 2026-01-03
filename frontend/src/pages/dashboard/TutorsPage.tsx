@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { API_BASE_URL } from '../../config/api';
+import { useAuth } from '../../context/AuthContext';
 import { Table, Button, Space, Tag, Modal, Card, Input, message } from 'antd';
 import { SearchOutlined, DownloadOutlined, CheckOutlined, CloseOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
@@ -36,6 +38,8 @@ const TutorsPage = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  const { token } = useAuth();
+
   useEffect(() => {
     fetchTutorApplications();
   }, []);
@@ -43,7 +47,9 @@ const TutorsPage = () => {
   const fetchTutorApplications = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:5001/api/tutor');
+      const headers: Record<string, string> = {};
+      if (token) headers.Authorization = `Bearer ${token}`;
+      const response = await fetch(`${API_BASE_URL}/tutor`, { headers });
       if (!response.ok) {
         throw new Error('Failed to fetch tutor applications');
       }
@@ -63,7 +69,9 @@ const TutorsPage = () => {
 
   const handleDownloadCV = async (record: TutorApplication) => {
     try {
-      const response = await fetch(`http://localhost:5001/api/tutor/${record.id}/download-cv`);
+      const headers: Record<string, string> = {};
+      if (token) headers.Authorization = `Bearer ${token}`;
+      const response = await fetch(`${API_BASE_URL}/tutor/${record.id}/download-cv`, { headers });
       if (!response.ok) {
         throw new Error('Failed to download CV');
       }
@@ -89,11 +97,11 @@ const TutorsPage = () => {
 
   const handleStatusChange = async (record: TutorApplication, newStatus: 'approved' | 'rejected') => {
     try {
-      const response = await fetch(`http://localhost:5001/api/tutor/${record.id}/status`, {
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (token) headers.Authorization = `Bearer ${token}`;
+      const response = await fetch(`${API_BASE_URL}/tutor/${record.id}/status`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers,
         body: JSON.stringify({ status: newStatus })
       });
 
