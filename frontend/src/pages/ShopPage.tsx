@@ -1,4 +1,5 @@
 import { useContext, useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { CartContext } from '../context/CartContext';
 import { useToast } from '../context/ToastContext';
 import { Filter, Search, ShoppingCart, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -19,7 +20,15 @@ interface Product {
   reviews?: number;
 }
 
-const categories = ['All', 'Robotics Kits', 'Coding Books', 'Accessories'];
+interface Category {
+  id: number;
+  name: string;
+  description?: string;
+  subcategories?: any[];
+  created_at: string;
+  updated_at: string;
+}
+
 const ageGroups = ['Kids', 'Teens', 'Adults'];
 const skillLevels = ['All', 'Beginner', 'Intermediate', 'Advanced'];
 
@@ -27,6 +36,7 @@ export default function ShopPage() {
   const { state: cartState, dispatch } = useContext(CartContext);
   const { addToast } = useToast();
   const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<string[]>(['All']);
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [selectedAges, setSelectedAges] = useState<string[]>([]);
   const [selectedSkill, setSelectedSkill] = useState('All');
@@ -74,6 +84,24 @@ export default function ShopPage() {
     };
     fetchProducts();
   }, [addToast]);
+
+  // Fetch categories from backend
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const data = await apiCall(`${API_BASE_URL}/categories`);
+        const categoryArray = Array.isArray(data) ? data : [];
+        // Extract just the category names and prepend 'All'
+        const categoryNames = categoryArray.map((cat: Category) => cat.name);
+        setCategories(['All', ...categoryNames]);
+      } catch (error) {
+        console.error('Failed to fetch categories:', error);
+        // Keep the default if fetch fails
+        setCategories(['All']);
+      }
+    };
+    fetchCategories();
+  }, []);
 
   // FILTER LOGIC
   let filteredProducts = products.filter(p => {
@@ -335,7 +363,11 @@ export default function ShopPage() {
                     const inCart = cartState.items.some(item => item.id === product.id);
                     return (
                       <div className="col-12 col-sm-6 col-md-4 col-lg-5col" key={product.id}>
-                        <div className="product-card-modern">
+                        <Link 
+                          to={`/product/${product.id}`}
+                          className="product-card-modern text-decoration-none"
+                          style={{ cursor: 'pointer' }}
+                        >
                           <div className="product-image-wrapper" style={{ overflow: 'hidden', backgroundColor: '#f8f9fa' }}>
                             <img 
                               src={product.image_url} 
@@ -362,7 +394,10 @@ export default function ShopPage() {
                             <div className="product-overlay">
                               <button
                                 className="btn btn-primary btn-sm"
-                                onClick={() => handleAddToCart(product)}
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  handleAddToCart(product);
+                                }}
                                 disabled={inCart || product.stock <= 0}
                               >
                                 {inCart ? (
@@ -397,14 +432,17 @@ export default function ShopPage() {
                               </div>
                               <button
                                 className="btn btn-primary btn-sm"
-                                onClick={() => handleAddToCart(product)}
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  handleAddToCart(product);
+                                }}
                                 disabled={inCart || product.stock <= 0}
                               >
                                 {inCart ? 'In Cart' : product.stock <= 0 ? 'Out of Stock' : 'Add'}
                               </button>
                             </div>
                           </div>
-                        </div>
+                        </Link>
                       </div>
                     );
                   })}

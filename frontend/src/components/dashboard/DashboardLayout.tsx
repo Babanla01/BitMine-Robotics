@@ -11,7 +11,8 @@ import {
   MenuUnfoldOutlined,
   FileTextOutlined,
   TeamOutlined,
-  BookOutlined
+  BookOutlined,
+  FolderOutlined
 } from '@ant-design/icons';
 import { useAuth } from '../../context/AuthContext';
 
@@ -25,6 +26,7 @@ const DashboardLayout = ({ children }: { children?: ReactNode }) => {
   const menuItems = [
     { key: 'dashboard', icon: <DashboardOutlined />, label: 'Dashboard', path: '/dashboard' },
     { key: 'users', icon: <UserOutlined />, label: 'Users', path: '/dashboard/users' },
+    { key: 'categories', icon: <FolderOutlined />, label: 'Categories', path: '/dashboard/categories' },
     { key: 'products', icon: <ShoppingCartOutlined />, label: 'Products', path: '/dashboard/products' },
     { key: 'orders', icon: <ShoppingOutlined />, label: 'Orders', path: '/dashboard/orders' },
     { key: 'classes', icon: <BookOutlined />, label: 'Classes', path: '/dashboard/classes' },

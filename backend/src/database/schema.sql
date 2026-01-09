@@ -126,9 +126,31 @@ CREATE TABLE password_reset_otps (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Categories Table
+CREATE TABLE categories (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL UNIQUE,
+  description TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Subcategories Table
+CREATE TABLE subcategories (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  description TEXT,
+  category_id INTEGER NOT NULL REFERENCES categories(id) ON DELETE CASCADE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(name, category_id)
+);
+
 -- Create indexes for faster queries
 CREATE INDEX idx_users_email ON users(email);
 CREATE INDEX idx_products_category ON products(category);
+CREATE INDEX idx_categories_name ON categories(name);
+CREATE INDEX idx_subcategories_category_id ON subcategories(category_id);
 CREATE INDEX idx_orders_user_id ON orders(user_id);
 CREATE INDEX idx_cart_items_user_id ON cart_items(user_id);
 CREATE INDEX idx_newsletter_email ON newsletter_subscriptions(email);

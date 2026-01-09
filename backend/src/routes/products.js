@@ -80,16 +80,20 @@ router.get('/categories/all', async (req, res) => {
 // Create product (admin only)
 router.post('/', async (req, res) => {
   try {
-    const { name, category, price, stock, description, image_url, age_group, skill_level } = req.body;
+    const { name, category_id, subcategory_id, price, stock, description, image_url, age_group, skill_level } = req.body;
 
     // Validate required fields
-    if (!name || !category || !price || stock === undefined) {
-      return res.status(400).json({ error: 'Missing required fields' });
+    if (!name || !category_id || price === undefined || stock === undefined) {
+      return res.status(400).json({ error: 'Missing required fields: name, category_id, price, and stock are required' });
     }
 
+    // Get category name for backward compatibility
+    const categoryResult = await pool.query('SELECT name FROM categories WHERE id = $1', [category_id]);
+    const categoryName = categoryResult.rows[0]?.name || 'Uncategorized';
+
     const result = await pool.query(
-      'INSERT INTO products (name, category, price, stock, description, image_url, age_group, skill_level) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *',
-      [name, category, price, stock, description || '', image_url || '', age_group || 'All', skill_level || 'Beginner']
+      'INSERT INTO products (name, category, category_id, subcategory_id, price, stock, description, image_url, age_group, skill_level) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *',
+      [name, categoryName, category_id, subcategory_id || null, price, stock, description || '', image_url || '', age_group || 'All', skill_level || 'Beginner']
     );
 
     res.status(201).json(result.rows[0]);
@@ -101,7 +105,7 @@ router.post('/', async (req, res) => {
 // Update product (admin only)
 router.put('/:id', async (req, res) => {
   try {
-    const { name, category, price, stock, description, image_url, age_group, skill_level } = req.body;
+    const { name, category_id, subcategory_id, price, stock, description, image_url, age_group, skill_level } = req.body;
     const productId = req.params.id;
 
     // Check if product exists
@@ -110,9 +114,16 @@ router.put('/:id', async (req, res) => {
       return res.status(404).json({ error: 'Product not found' });
     }
 
+    // Get category name if category_id is provided
+    let categoryName = existingProduct.rows[0].category;
+    if (category_id) {
+      const categoryResult = await pool.query('SELECT name FROM categories WHERE id = $1', [category_id]);
+      categoryName = categoryResult.rows[0]?.name || existingProduct.rows[0].category;
+    }
+
     const result = await pool.query(
-      'UPDATE products SET name = $1, category = $2, price = $3, stock = $4, description = $5, image_url = $6, age_group = $7, skill_level = $8 WHERE id = $9 RETURNING *',
-      [name || existingProduct.rows[0].name, category || existingProduct.rows[0].category, price || existingProduct.rows[0].price, stock !== undefined ? stock : existingProduct.rows[0].stock, description || existingProduct.rows[0].description, image_url || existingProduct.rows[0].image_url, age_group || existingProduct.rows[0].age_group, skill_level || existingProduct.rows[0].skill_level, productId]
+      'UPDATE products SET name = $1, category = $2, category_id = $3, subcategory_id = $4, price = $5, stock = $6, description = $7, image_url = $8, age_group = $9, skill_level = $10 WHERE id = $11 RETURNING *',
+      [name || existingProduct.rows[0].name, categoryName, category_id || existingProduct.rows[0].category_id, subcategory_id !== undefined ? subcategory_id : existingProduct.rows[0].subcategory_id, price || existingProduct.rows[0].price, stock !== undefined ? stock : existingProduct.rows[0].stock, description || existingProduct.rows[0].description, image_url || existingProduct.rows[0].image_url, age_group || existingProduct.rows[0].age_group, skill_level || existingProduct.rows[0].skill_level, productId]
     );
 
     res.json(result.rows[0]);

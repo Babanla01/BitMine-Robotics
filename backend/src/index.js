@@ -59,6 +59,7 @@ import adminRoutes from './routes/admin.js';
 import paymentRoutes from './routes/payment.js';
 import uploadRoutes from './routes/upload.js';
 import addressRoutes from './routes/addresses.js';
+import categoriesRoutes from './routes/categories.js';
 
 const app = express();
 
@@ -150,6 +151,7 @@ const app = express();
     // Routes
     app.use('/api/auth', authRoutes);
     app.use('/api/products', productRoutes);
+    app.use('/api/categories', categoriesRoutes);
     app.use('/api/cart', cartRoutes);
     app.use('/api/orders', orderRoutes);
     app.use('/api/contact', contactRoutes);

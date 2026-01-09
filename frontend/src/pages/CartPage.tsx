@@ -28,34 +28,21 @@ export default function CartPage() {
   const { isAuthenticated, user } = useAuth()
   const navigate = useNavigate()
 
-  const [deliveryFee, setDeliveryFee] = useState(0)
   const [isLoading, setIsLoading] = useState(false)
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
   const [defaultAddress, setDefaultAddress] = useState<UserAddress | null>(null)
   const [profileLoading, setProfileLoading] = useState(false)
 
   const subtotal = cartState.items.reduce((sum, item) => sum + item.price * item.qty, 0)
-  const total = Number(subtotal) + Number(deliveryFee)
+  const total = Number(subtotal)
   const isCartEmpty = cartState.items.length === 0
 
-  // Fetch delivery zones and user profile on component mount
+  // Fetch user profile on component mount
   useEffect(() => {
-    fetchDeliveryZones()
     if (isAuthenticated && user?.id) {
       fetchUserProfile()
     }
   }, [isAuthenticated, user?.id])
-
-  const fetchDeliveryZones = async () => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/orders/delivery-zones`)
-      if (!response.ok) throw new Error('Failed to fetch delivery zones')
-      // Zones fetched but not needed for simplified checkout
-    } catch (error) {
-      console.error('Error fetching delivery zones:', error)
-      addToast('Failed to load delivery zones', 'error')
-    }
-  }
 
   const fetchUserProfile = async () => {
     if (!user?.id) return
@@ -66,28 +53,11 @@ export default function CartPage() {
         const data = await response.json()
         setUserProfile(data.user)
         setDefaultAddress(data.defaultAddress)
-        
-        // Set delivery fee based on default address state
-        if (data.defaultAddress?.state) {
-          await handleStateChange(data.defaultAddress.state)
-        }
       }
     } catch (error) {
       console.error('Error fetching profile:', error)
     } finally {
       setProfileLoading(false)
-    }
-  }
-
-  const handleStateChange = async (state: string) => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/orders/delivery-fee/${state}`)
-      if (!response.ok) throw new Error('Failed to fetch delivery fee')
-      const data = await response.json()
-      setDeliveryFee(data.delivery_fee)
-    } catch (error) {
-      console.error('Error fetching delivery fee:', error)
-      addToast('Failed to get delivery fee', 'error')
     }
   }
 
@@ -139,7 +109,6 @@ export default function CartPage() {
           price: Number(item.price),
         })),
         subtotal: Number(subtotal),
-        delivery_fee: Number(deliveryFee),
         total_amount: Number(total),
       }
 
@@ -310,11 +279,6 @@ export default function CartPage() {
               <div className="d-flex justify-content-between mb-2">
                 <span className="text-medium">Items ({cartState.items.reduce((total, item) => total + item.qty, 0)})</span>
                 <span className="fw-semibold">₦{subtotal.toLocaleString()}</span>
-              </div>
-
-              <div className="d-flex justify-content-between mb-3">
-                <span className="text-medium">Delivery Fee</span>
-                <span className="fw-semibold">{deliveryFee === 0 ? 'N/A' : `₦${deliveryFee.toLocaleString()}`}</span>
               </div>
 
               <div className="border-top pt-3 mb-3">

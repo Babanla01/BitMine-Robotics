@@ -5,47 +5,6 @@ import emailjs from '@emailjs/nodejs';
 
 const router = express.Router();
 
-// Get delivery zones
-router.get('/delivery-zones', async (req, res) => {
-  try {
-    const result = await pool.query('SELECT * FROM delivery_zones ORDER BY state ASC');
-    res.json(result.rows);
-  } catch (error) {
-    console.error('Error fetching delivery zones:', error);
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// Get delivery fee for a specific state
-router.get('/delivery-fee/:state', async (req, res) => {
-  try {
-    const { state } = req.params;
-    
-    // Try exact match first
-    let result = await pool.query(
-      'SELECT delivery_fee FROM delivery_zones WHERE state = $1',
-      [state]
-    );
-
-    // If no exact match, use "Other"
-    if (result.rows.length === 0) {
-      result = await pool.query(
-        'SELECT delivery_fee FROM delivery_zones WHERE state = $1',
-        ['Other']
-      );
-    }
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Delivery zone not found' });
-    }
-
-    res.json({ delivery_fee: result.rows[0].delivery_fee });
-  } catch (error) {
-    console.error('Error fetching delivery fee:', error);
-    res.status(500).json({ error: error.message });
-  }
-});
-
 // Initialize Paystack payment
 router.post('/initialize-payment', async (req, res) => {
   try {
@@ -59,7 +18,6 @@ router.post('/initialize-payment', async (req, res) => {
       postal_code,
       items,
       subtotal,
-      delivery_fee,
       total_amount
     } = req.body;
 
@@ -67,13 +25,8 @@ router.post('/initialize-payment', async (req, res) => {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
-    // Verify calculation: ensure total_amount = subtotal + delivery_fee
-    const calculatedTotal = parseFloat(subtotal) + parseFloat(delivery_fee);
+    // Use total_amount as-is (no delivery fee added)
     const finalTotal = parseFloat(total_amount);
-    
-    if (Math.abs(calculatedTotal - finalTotal) > 0.01) {
-      console.warn(`Total mismatch: calculated=${calculatedTotal}, provided=${finalTotal}. Using calculated value.`);
-    }
 
     // Initialize Paystack payment
     const paystackUrl = 'https://api.paystack.co/transaction/initialize';
@@ -93,7 +46,6 @@ router.post('/initialize-payment', async (req, res) => {
         postal_code,
         items: items,
         subtotal: parseFloat(subtotal),
-        delivery_fee: parseFloat(delivery_fee),
         total_amount: finalTotal
       }
     }, {
@@ -176,7 +128,6 @@ router.post('/verify-payment', async (req, res) => {
         postal_code,
         items,
         subtotal,
-        delivery_fee,
         total_amount
       } = metadata;
 
@@ -197,8 +148,8 @@ router.post('/verify-payment', async (req, res) => {
 
       // Ensure all amounts are numbers
       const finalSubtotal = parseFloat(subtotal) || 0;
-      const finalDeliveryFee = parseFloat(delivery_fee) || 0;
-      const finalTotalAmount = parseFloat(total_amount) || (finalSubtotal + finalDeliveryFee);
+      const finalDeliveryFee = 0; // No delivery fee
+      const finalTotalAmount = parseFloat(total_amount) || finalSubtotal;
 
       // Generate order number
       const orderNumber = `ORD-${Date.now()}`;
@@ -261,7 +212,6 @@ router.post('/verify-payment', async (req, res) => {
           customer_name,
           order_number: orderNumber,
           total_amount: finalTotalAmount.toLocaleString('en-NG', { style: 'currency', currency: 'NGN' }),
-          delivery_fee: finalDeliveryFee.toLocaleString('en-NG', { style: 'currency', currency: 'NGN' }),
           subtotal: finalSubtotal.toLocaleString('en-NG', { style: 'currency', currency: 'NGN' }),
           street_address,
           city,

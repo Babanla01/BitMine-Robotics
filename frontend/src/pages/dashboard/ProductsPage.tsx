@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Table, Button, Space, Input, Card, Modal, Form, InputNumber, Upload, message, Select, Tag } from 'antd';
 import { SearchOutlined, PlusOutlined, UploadOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
-import { API, apiCall, API_BASE_URL } from '../../config/api';
+import { API_BASE_URL, apiCall, API } from '../../config/api';
 import { useAuth } from '../../context/AuthContext';
 
 interface ProductType {
@@ -10,6 +10,8 @@ interface ProductType {
   id: number;
   name: string;
   category: string;
+  category_id?: number;
+  subcategory_id?: number;
   price: number;
   stock: number;
   image_url: string;
@@ -22,8 +24,11 @@ const ProductsPage = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [form] = Form.useForm();
   const [products, setProducts] = useState<ProductType[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [modalWidth, setModalWidth] = useState(700);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
   const { token } = useAuth();
 
   // Calculate modal width responsively
@@ -39,12 +44,16 @@ const ProductsPage = () => {
   // Fetch products on mount
   useEffect(() => {
     fetchProducts();
-  }, []);
+    fetchCategories();
+  }, [token]);
 
   const fetchProducts = async () => {
+    setLoading(true);
     try {
-      const response = await apiCall(API.products);
-      const productsData = response.data.map((product: any) => {
+      const response = await apiCall(API.products, {}, token);
+      // Handle paginated response format from backend
+      const productsArray = response.data || (Array.isArray(response) ? response : []);
+      const productsData = Array.isArray(productsArray) ? productsArray.map((product: any) => {
         let imageUrl = product.image_url;
         
         // Convert relative URLs to absolute URLs
@@ -67,10 +76,24 @@ const ProductsPage = () => {
           stock: parseInt(String(product.stock), 10),
           image_url: imageUrl,
         };
-      });
+      }) : [];
       setProducts(productsData);
     } catch (error) {
+      console.error('Failed to load products:', error);
       message.error('Failed to load products');
+      setProducts([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const response = await apiCall(`${API_BASE_URL}/categories`, {}, token);
+      setCategories(Array.isArray(response) ? response : []);
+    } catch (error) {
+      console.error('Failed to load categories:', error);
+      setCategories([]);
     }
   };
 
@@ -78,29 +101,32 @@ const ProductsPage = () => {
     {
       title: 'Product',
       key: 'product',
-      render: (_, record) => (
-        <Space size="small" direction="vertical" style={{ display: 'flex', flexDirection: 'row' }}>
-          <div style={{ width: 40, height: 40, flexShrink: 0, backgroundColor: '#f0f0f0', borderRadius: 4, overflow: 'hidden' }}>
-            {record.image_url ? (
-              <img 
-                src={record.image_url} 
-                alt={record.name}
-                style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' }}
-                onError={(e) => {
-                  const img = e.target as HTMLImageElement;
-                  img.style.display = 'none';
-                }}
-              />
-            ) : (
-              <div style={{ width: '100%', height: '100%', backgroundColor: '#f0f0f0', borderRadius: 4 }} />
-            )}
-          </div>
-          <div>
-            <div style={{ fontWeight: 500, fontSize: 11 }}>{record.name}</div>
-            <div style={{ fontSize: 10, color: '#666' }}>{record.category}</div>
-          </div>
-        </Space>
-      ),
+      render: (_, record) => {
+        const categoryName = categories.find(c => c.id === record.category_id)?.name || 'Uncategorized';
+        return (
+          <Space size="small" direction="vertical" style={{ display: 'flex', flexDirection: 'row' }}>
+            <div style={{ width: 40, height: 40, flexShrink: 0, backgroundColor: '#f0f0f0', borderRadius: 4, overflow: 'hidden' }}>
+              {record.image_url ? (
+                <img 
+                  src={record.image_url} 
+                  alt={record.name}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' }}
+                  onError={(e) => {
+                    const img = e.target as HTMLImageElement;
+                    img.style.display = 'none';
+                  }}
+                />
+              ) : (
+                <div style={{ width: '100%', height: '100%', backgroundColor: '#f0f0f0', borderRadius: 4 }} />
+              )}
+            </div>
+            <div>
+              <div style={{ fontWeight: 500, fontSize: 11 }}>{record.name}</div>
+              <div style={{ fontSize: 10, color: '#666' }}>{categoryName}</div>
+            </div>
+          </Space>
+        );
+      },
     },
     {
       title: 'Price',
@@ -147,15 +173,18 @@ const ProductsPage = () => {
   const handleAddProduct = () => {
     form.resetFields();
     setEditingId(null);
+    setSelectedCategoryId(null);
     setIsModalVisible(true);
   };
 
   const handleEdit = (product: ProductType) => {
     setEditingId(product.id);
+    setSelectedCategoryId(product.category_id || null);
     form.setFieldsValue({
       id: product.id,
       name: product.name,
-      category: product.category,
+      category_id: product.category_id,
+      subcategory_id: product.subcategory_id,
       price: product.price,
       stock: product.stock,
       description: product.description,
@@ -219,22 +248,20 @@ const ProductsPage = () => {
           method: 'PUT',
           body: JSON.stringify(values),
         }, token || undefined);
-        const updatedProduct = { ...values, key: String(values.id), price: parseFloat(String(values.price)), stock: parseInt(String(values.stock), 10) };
-        setProducts(products.map(p => p.id === editingId ? updatedProduct : p));
         message.success('Product updated successfully');
       } else {
         // Add new product
-        const newProduct = await apiCall(API.products, {
+        await apiCall(API.products, {
           method: 'POST',
           body: JSON.stringify(values),
         }, token || undefined);
-        const formattedProduct = { ...newProduct, key: String(newProduct.id), price: parseFloat(String(newProduct.price)), stock: parseInt(String(newProduct.stock), 10) };
-        setProducts([...products, formattedProduct]);
         message.success('Product added successfully');
       }
       setIsModalVisible(false);
       form.resetFields();
       setEditingId(null);
+      setSelectedCategoryId(null);
+      fetchProducts(); // Refresh products to show updated data
     } catch (error) {
       message.error(error instanceof Error ? error.message : 'Failed to save product');
     }
@@ -293,15 +320,41 @@ const ProductsPage = () => {
           </Form.Item>
 
           <Form.Item
-            name="category"
+            name="category_id"
             label={<span style={{ fontSize: 12 }}>Category</span>}
             rules={[{ required: true, message: 'Please select a category' }]}
             style={{ marginBottom: 10 }}
           >
-            <Select placeholder="Select category" size="small">
-              <Select.Option value="Robotics Kits">Robotics Kits</Select.Option>
-              <Select.Option value="Coding Books">Coding Books</Select.Option>
-              <Select.Option value="Accessories">Accessories</Select.Option>
+            <Select 
+              placeholder="Select category" 
+              size="small"
+              onChange={(categoryId) => {
+                setSelectedCategoryId(categoryId);
+                form.setFieldsValue({ subcategory_id: undefined });
+              }}
+            >
+              {(categories || []).map((cat) => (
+                <Select.Option key={cat.id} value={cat.id}>
+                  {cat.name}
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+
+          <Form.Item
+            name="subcategory_id"
+            label={<span style={{ fontSize: 12 }}>Subcategory (Optional)</span>}
+            style={{ marginBottom: 10 }}
+          >
+            <Select placeholder="Select subcategory" size="small" allowClear>
+              {selectedCategoryId &&
+                (categories || [])
+                  .find((cat) => cat.id === selectedCategoryId)
+                  ?.subcategories?.map((subcat: any) => (
+                    <Select.Option key={subcat.id} value={subcat.id}>
+                      {subcat.name}
+                    </Select.Option>
+                  ))}
             </Select>
           </Form.Item>
 

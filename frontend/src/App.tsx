@@ -14,6 +14,7 @@ import ForgotPasswordPage from './pages/ForgotPasswordPage';
 
 // Public pages - lazy loaded (load on demand)
 const ShopPage = lazy(() => import('./pages/ShopPage'));
+const ProductDetailPage = lazy(() => import('./pages/ProductDetailPage'));
 const CartPage = lazy(() => import('./pages/CartPage'));
 const PaymentCallbackPage = lazy(() => import('./pages/PaymentCallbackPage'));
 const TutorPage = lazy(() => import('./pages/TutorPage'));
@@ -27,6 +28,7 @@ const UserOrdersPage = lazy(() => import('./pages/OrdersPage'));
 const DashboardLayout = lazy(() => import('./components/dashboard/DashboardLayout'));
 const DashboardHome = lazy(() => import('./pages/dashboard/DashboardHome'));
 const UsersPage = lazy(() => import('./pages/dashboard/UsersPage'));
+const CategoriesPage = lazy(() => import('./pages/dashboard/CategoriesPage'));
 const ProductsPage = lazy(() => import('./pages/dashboard/ProductsPage'));
 const DashboardOrdersPage = lazy(() => import('./pages/dashboard/OrdersPage'));
 const ClassesPage = lazy(() => import('./pages/dashboard/ClassesPage'));
@@ -95,6 +97,7 @@ function App() {
       <Route path="/about" element={<PublicRoute><Layout><AboutPage /></Layout></PublicRoute>} />
       <Route path="/contact" element={<PublicRoute><Layout><ContactPage /></Layout></PublicRoute>} />
       <Route path="/shop" element={<PublicRoute><Layout><Suspense fallback={<LoadingSpinner />}><ShopPage /></Suspense></Layout></PublicRoute>} />
+      <Route path="/product/:id" element={<PublicRoute><Layout><Suspense fallback={<LoadingSpinner />}><ProductDetailPage /></Suspense></Layout></PublicRoute>} />
       <Route path="/cart" element={<PublicRoute><Layout><Suspense fallback={<LoadingSpinner />}><CartPage /></Suspense></Layout></PublicRoute>} />
       <Route path="/payment/callback" element={<PublicRoute><Layout><Suspense fallback={<LoadingSpinner />}><PaymentCallbackPage /></Suspense></Layout></PublicRoute>} />
       <Route path="/login" element={<PublicRoute><Layout><LoginPage /></Layout></PublicRoute>} />
@@ -141,6 +144,16 @@ function App() {
           <RoleProtectedRoute requiredRole="admin">
             <Suspense fallback={<LoadingSpinner />}>
               <DashboardLayout><UsersPage /></DashboardLayout>
+            </Suspense>
+          </RoleProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/dashboard/categories" 
+        element={
+          <RoleProtectedRoute requiredRole="admin">
+            <Suspense fallback={<LoadingSpinner />}>
+              <DashboardLayout><CategoriesPage /></DashboardLayout>
             </Suspense>
           </RoleProtectedRoute>
         } 

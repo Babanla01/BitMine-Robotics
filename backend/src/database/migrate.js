@@ -113,6 +113,95 @@ async function migrateDatabase() {
       console.error('Error creating refresh_tokens table:', err.message);
     }
 
+    // Create categories table if it doesn't exist
+    try {
+      const categoriesCheck = await pool.query(`
+        SELECT table_name FROM information_schema.tables WHERE table_name = 'categories'
+      `);
+
+      if (categoriesCheck.rows.length === 0) {
+        console.log('Creating categories table...');
+        await pool.query(`
+          CREATE TABLE categories (
+            id SERIAL PRIMARY KEY,
+            name VARCHAR(255) NOT NULL UNIQUE,
+            description TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+          )
+        `);
+        await pool.query(`CREATE INDEX idx_categories_name ON categories(name)`);
+        console.log('✅ categories table created');
+      }
+    } catch (err) {
+      console.error('Error creating categories table:', err.message);
+    }
+
+    // Create subcategories table if it doesn't exist
+    try {
+      const subcategoriesCheck = await pool.query(`
+        SELECT table_name FROM information_schema.tables WHERE table_name = 'subcategories'
+      `);
+
+      if (subcategoriesCheck.rows.length === 0) {
+        console.log('Creating subcategories table...');
+        await pool.query(`
+          CREATE TABLE subcategories (
+            id SERIAL PRIMARY KEY,
+            name VARCHAR(255) NOT NULL,
+            description TEXT,
+            category_id INTEGER NOT NULL REFERENCES categories(id) ON DELETE CASCADE,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(name, category_id)
+          )
+        `);
+        await pool.query(`CREATE INDEX idx_subcategories_category_id ON subcategories(category_id)`);
+        console.log('✅ subcategories table created');
+      }
+    } catch (err) {
+      console.error('Error creating subcategories table:', err.message);
+    }
+
+    // Add category_id and subcategory_id columns to products if they don't exist
+    try {
+      const categoryIdCheck = await pool.query(`
+        SELECT column_name FROM information_schema.columns 
+        WHERE table_name = 'products' AND column_name = 'category_id'
+      `);
+
+      if (categoryIdCheck.rows.length === 0) {
+        console.log('Adding category_id column to products...');
+        await pool.query(`
+          ALTER TABLE products 
+          ADD COLUMN category_id INTEGER REFERENCES categories(id) ON DELETE SET NULL
+        `);
+        await pool.query(`CREATE INDEX idx_products_category_id ON products(category_id)`);
+        console.log('✅ category_id column added to products');
+      }
+    } catch (err) {
+      console.error('Error adding category_id column:', err.message);
+    }
+
+    try {
+      const subcategoryIdCheck = await pool.query(`
+        SELECT column_name FROM information_schema.columns 
+        WHERE table_name = 'products' AND column_name = 'subcategory_id'
+      `);
+
+      if (subcategoryIdCheck.rows.length === 0) {
+        console.log('Adding subcategory_id column to products...');
+        await pool.query(`
+          ALTER TABLE products 
+          ADD COLUMN subcategory_id INTEGER REFERENCES subcategories(id) ON DELETE SET NULL
+        `);
+        await pool.query(`CREATE INDEX idx_products_subcategory_id ON products(subcategory_id)`);
+        console.log('✅ subcategory_id column added to products');
+      }
+    } catch (err) {
+      console.error('Error adding subcategory_id column:', err.message);
+    }
+
     console.log('✅ Database migrations complete');
   } catch (error) {
     console.error('❌ Database migration failed:', error.message);
