@@ -41,7 +41,7 @@ export const API = {
 export async function apiCall(
   url: string,
   options: RequestInit = {},
-  token?: string
+  token?: string | null
 ): Promise<any> {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',

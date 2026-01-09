@@ -7,7 +7,6 @@ import {
   Form,
   Input,
   message,
-  Tabs,
   Card,
   Collapse,
   Empty,
@@ -210,64 +209,6 @@ const CategoriesPage = () => {
             title="Delete Subcategory"
             description="Are you sure you want to delete this subcategory?"
             onConfirm={() => handleDeleteSubcategory(record.id)}
-            okText="Yes"
-            cancelText="No"
-            okButtonProps={{ danger: true }}
-          >
-            <Button type="text" size="small" icon={<DeleteOutlined />} danger>
-              Delete
-            </Button>
-          </Popconfirm>
-        </Space>
-      ),
-    },
-  ];
-
-  const categoryColumns: ColumnsType<Category> = [
-    {
-      title: 'Category Name',
-      dataIndex: 'name',
-      key: 'name',
-      width: '30%',
-      render: (text) => <strong>{text}</strong>,
-    },
-    {
-      title: 'Description',
-      dataIndex: 'description',
-      key: 'description',
-      width: '35%',
-      render: (text) => text || '—',
-    },
-    {
-      title: 'Subcategories',
-      key: 'subcategoryCount',
-      width: '15%',
-      render: (_, record) => (
-        <span>
-          {record.subcategories && record.subcategories.length > 0
-            ? `${record.subcategories.length} items`
-            : 'None'}
-        </span>
-      ),
-    },
-    {
-      title: 'Actions',
-      key: 'actions',
-      width: '20%',
-      render: (_, record) => (
-        <Space size="small">
-          <Button
-            type="text"
-            size="small"
-            icon={<EditOutlined />}
-            onClick={() => handleEditCategory(record)}
-          >
-            Edit
-          </Button>
-          <Popconfirm
-            title="Delete Category"
-            description="Are you sure you want to delete this category? All subcategories will also be deleted."
-            onConfirm={() => handleDeleteCategory(record.id)}
             okText="Yes"
             cancelText="No"
             okButtonProps={{ danger: true }}

@@ -25,7 +25,6 @@ const ProductsPage = () => {
   const [form] = Form.useForm();
   const [products, setProducts] = useState<ProductType[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [modalWidth, setModalWidth] = useState(700);
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
@@ -48,7 +47,6 @@ const ProductsPage = () => {
   }, [token]);
 
   const fetchProducts = async () => {
-    setLoading(true);
     try {
       const response = await apiCall(API.products, {}, token);
       // Handle paginated response format from backend
@@ -82,8 +80,6 @@ const ProductsPage = () => {
       console.error('Failed to load products:', error);
       message.error('Failed to load products');
       setProducts([]);
-    } finally {
-      setLoading(false);
     }
   };
 
