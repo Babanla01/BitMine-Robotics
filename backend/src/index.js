@@ -101,41 +101,42 @@ const app = express();
       'https://api.bitmineroboticscw.cloud'
     ];
 
-    // Add FRONTEND_URL from env if it exists and is not already in list
+    // Add FRONTEND_URL from env if it exists
     if (process.env.FRONTEND_URL && !allowedOrigins.includes(process.env.FRONTEND_URL)) {
       allowedOrigins.push(process.env.FRONTEND_URL);
     }
 
+    console.log('✅ CORS: Allowed origins configured:', allowedOrigins);
+
     app.use(cors({
-      origin: (origin, callback) => {
-        // Allow no origin (mobile apps, curl, Postman)
+      origin: function(origin, callback) {
+        // Always allow requests with no origin (like mobile apps or curl requests)
         if (!origin) {
+          console.log('✅ CORS: Allowing request with no origin');
           return callback(null, true);
         }
 
-        // Check if origin is in allowlist (exact match or domain match)
-        const isAllowed = allowedOrigins.some(allowedOrigin => {
-          if (origin === allowedOrigin) return true;
-          // Allow any subdomain of bitmineroboticscw.cloud
-          if (allowedOrigin.includes('bitmineroboticscw.cloud') && origin.includes('bitmineroboticscw.cloud')) {
-            return true;
-          }
-          return false;
-        });
-
-        if (isAllowed) {
+        // Check for exact match
+        if (allowedOrigins.indexOf(origin) !== -1) {
+          console.log('✅ CORS: Allowing origin (exact match):', origin);
           return callback(null, true);
         }
 
-        // Log blocked origins for debugging
-        console.warn('⚠️ CORS: Blocked request from origin:', origin);
-        console.warn('   Allowed origins:', allowedOrigins.join(', '));
-        
-        return callback(new Error('Not allowed by CORS'));
+        // Check for subdomain match (*.bitmineroboticscw.cloud)
+        if (origin.endsWith('bitmineroboticscw.cloud')) {
+          console.log('✅ CORS: Allowing origin (subdomain match):', origin);
+          return callback(null, true);
+        }
+
+        // Block the request
+        console.error('❌ CORS: BLOCKED origin:', origin);
+        console.error('   Expected origins:', allowedOrigins.join(', '));
+        return callback(new Error('CORS policy violation'));
       },
       credentials: true,
-      methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-      allowedHeaders: ['Content-Type', 'Authorization']
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD'],
+      allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+      optionsSuccessStatus: 200
     }));
       
     app.use(morgan('dev'));
