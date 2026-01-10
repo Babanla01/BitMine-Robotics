@@ -90,30 +90,35 @@ const app = express();
     }));
 
     // CORS Configuration - Accept all localhost ports for development and production domain
+    // app.use(cors({
+    //   origin: (origin, callback) => {
+    //     const allowedOrigins = [
+    //       'http://localhost:5174',
+    //       'http://localhost:5175',
+    //       'http://localhost:5176',
+    //       'http://localhost:5177',
+    //       'http://localhost:5178',
+    //       'https://bitmineroboticscw.cloud',
+    //       process.env.FRONTEND_URL
+    //     ].filter(Boolean);
+
+    //     if (!origin || allowedOrigins.includes(origin)) {
+    //       return callback(null, true);
+    //     }
+
+    //     // Don't throw an Error here — return false so CORS middleware
+    //     // will not allow the origin and will avoid causing a 500.
+    //     console.warn('Blocked CORS request from origin:', origin);
+    //     return callback(null, false);
+    //   },
+    //   credentials: true
+    // }));
+
     app.use(cors({
-      origin: (origin, callback) => {
-        const allowedOrigins = [
-          'http://localhost:5174',
-          'http://localhost:5175',
-          'http://localhost:5176',
-          'http://localhost:5177',
-          'http://localhost:5178',
-          'https://bitmineroboticscw.cloud',
-          process.env.FRONTEND_URL
-        ].filter(Boolean);
-
-        if (!origin || allowedOrigins.includes(origin)) {
-          return callback(null, true);
-        }
-
-        // Don't throw an Error here — return false so CORS middleware
-        // will not allow the origin and will avoid causing a 500.
-        console.warn('Blocked CORS request from origin:', origin);
-        return callback(null, false);
-      },
+      origin: 'https://bitmineroboticscw.cloud',
       credentials: true
     }));
-
+      
     app.use(morgan('dev'));
 
     // Request logging middleware
