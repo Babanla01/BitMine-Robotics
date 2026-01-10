@@ -89,34 +89,41 @@ const app = express();
       threshold: 1024 // Only compress responses larger than 1KB
     }));
 
-    // CORS Configuration - Accept all localhost ports for development and production domain
-    // app.use(cors({
-    //   origin: (origin, callback) => {
-    //     const allowedOrigins = [
-    //       'http://localhost:5174',
-    //       'http://localhost:5175',
-    //       'http://localhost:5176',
-    //       'http://localhost:5177',
-    //       'http://localhost:5178',
-    //       'https://bitmineroboticscw.cloud',
-    //       process.env.FRONTEND_URL
-    //     ].filter(Boolean);
-
-    //     if (!origin || allowedOrigins.includes(origin)) {
-    //       return callback(null, true);
-    //     }
-
-    //     // Don't throw an Error here — return false so CORS middleware
-    //     // will not allow the origin and will avoid causing a 500.
-    //     console.warn('Blocked CORS request from origin:', origin);
-    //     return callback(null, false);
-    //   },
-    //   credentials: true
-    // }));
-
+    // CORS Configuration - Accept localhost (dev), production domain, and env-configured frontend
+    const isDevelopment = process.env.NODE_ENV === 'development';
+    
     app.use(cors({
-      origin: 'https://bitmineroboticscw.cloud',
-      credentials: true
+      origin: (origin, callback) => {
+        // Build allowed origins list
+        const allowedOrigins = [
+          'http://localhost:5174',
+          'http://localhost:5175',
+          'http://localhost:5176',
+          'http://localhost:5177',
+          'http://localhost:5178',
+          'https://bitmineroboticscw.cloud',
+          'https://www.bitmineroboticscw.cloud',
+          process.env.FRONTEND_URL
+        ].filter(Boolean); // Remove undefined/null values
+
+        // Remove duplicates
+        const uniqueOrigins = [...new Set(allowedOrigins)];
+
+        // Allow requests with no origin (mobile apps, Postman, curl) and any localhost
+        if (!origin || origin.startsWith('http://localhost') || uniqueOrigins.includes(origin)) {
+          return callback(null, true);
+        }
+
+        // Log blocked origins for debugging
+        if (isDevelopment) {
+          console.warn('⚠️ CORS: Blocked request from origin:', origin);
+        }
+        
+        return callback(new Error('Not allowed by CORS'));
+      },
+      credentials: true,
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization']
     }));
       
     app.use(morgan('dev'));
