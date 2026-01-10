@@ -97,7 +97,8 @@ const app = express();
       'http://localhost:5177',
       'http://localhost:5178',
       'https://bitmineroboticscw.cloud',
-      'https://www.bitmineroboticscw.cloud'
+      'https://www.bitmineroboticscw.cloud',
+      'https://api.bitmineroboticscw.cloud'
     ];
 
     // Add FRONTEND_URL from env if it exists and is not already in list
@@ -112,10 +113,15 @@ const app = express();
           return callback(null, true);
         }
 
-        // Check if origin is in allowlist
-        const isAllowed = allowedOrigins.some(allowedOrigin => 
-          origin === allowedOrigin || origin.endsWith(allowedOrigin.replace(/^https?:\/\//, ''))
-        );
+        // Check if origin is in allowlist (exact match or domain match)
+        const isAllowed = allowedOrigins.some(allowedOrigin => {
+          if (origin === allowedOrigin) return true;
+          // Allow any subdomain of bitmineroboticscw.cloud
+          if (allowedOrigin.includes('bitmineroboticscw.cloud') && origin.includes('bitmineroboticscw.cloud')) {
+            return true;
+          }
+          return false;
+        });
 
         if (isAllowed) {
           return callback(null, true);
