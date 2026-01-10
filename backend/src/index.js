@@ -89,7 +89,7 @@ const app = express();
       threshold: 1024 // Only compress responses larger than 1KB
     }));
 
-    // CORS Configuration - Accept all localhost ports for development
+    // CORS Configuration - Accept all localhost ports for development and production domain
     app.use(cors({
       origin: (origin, callback) => {
         const allowedOrigins = [
@@ -98,6 +98,7 @@ const app = express();
           'http://localhost:5176',
           'http://localhost:5177',
           'http://localhost:5178',
+          'https://bitmineroboticscw.cloud',
           process.env.FRONTEND_URL
         ].filter(Boolean);
 
