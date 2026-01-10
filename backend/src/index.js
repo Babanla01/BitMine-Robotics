@@ -90,34 +90,40 @@ const app = express();
     }));
 
     // CORS Configuration - Accept localhost (dev), production domain, and env-configured frontend
-    const isDevelopment = process.env.NODE_ENV === 'development';
-    
+    const allowedOrigins = [
+      'http://localhost:5174',
+      'http://localhost:5175',
+      'http://localhost:5176',
+      'http://localhost:5177',
+      'http://localhost:5178',
+      'https://bitmineroboticscw.cloud',
+      'https://www.bitmineroboticscw.cloud'
+    ];
+
+    // Add FRONTEND_URL from env if it exists and is not already in list
+    if (process.env.FRONTEND_URL && !allowedOrigins.includes(process.env.FRONTEND_URL)) {
+      allowedOrigins.push(process.env.FRONTEND_URL);
+    }
+
     app.use(cors({
       origin: (origin, callback) => {
-        // Build allowed origins list
-        const allowedOrigins = [
-          'http://localhost:5174',
-          'http://localhost:5175',
-          'http://localhost:5176',
-          'http://localhost:5177',
-          'http://localhost:5178',
-          'https://bitmineroboticscw.cloud',
-          'https://www.bitmineroboticscw.cloud',
-          process.env.FRONTEND_URL
-        ].filter(Boolean); // Remove undefined/null values
+        // Allow no origin (mobile apps, curl, Postman)
+        if (!origin) {
+          return callback(null, true);
+        }
 
-        // Remove duplicates
-        const uniqueOrigins = [...new Set(allowedOrigins)];
+        // Check if origin is in allowlist
+        const isAllowed = allowedOrigins.some(allowedOrigin => 
+          origin === allowedOrigin || origin.endsWith(allowedOrigin.replace(/^https?:\/\//, ''))
+        );
 
-        // Allow requests with no origin (mobile apps, Postman, curl) and any localhost
-        if (!origin || origin.startsWith('http://localhost') || uniqueOrigins.includes(origin)) {
+        if (isAllowed) {
           return callback(null, true);
         }
 
         // Log blocked origins for debugging
-        if (isDevelopment) {
-          console.warn('⚠️ CORS: Blocked request from origin:', origin);
-        }
+        console.warn('⚠️ CORS: Blocked request from origin:', origin);
+        console.warn('   Allowed origins:', allowedOrigins.join(', '));
         
         return callback(new Error('Not allowed by CORS'));
       },
