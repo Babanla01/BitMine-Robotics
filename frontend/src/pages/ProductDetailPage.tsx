@@ -50,17 +50,8 @@ export default function ProductDetailPage() {
           return;
         }
 
-        // Handle image URL
-        let imageUrl = productData.image_url;
-        if (imageUrl && imageUrl.startsWith('/uploads/')) {
-          const apiRoot = API_BASE_URL.replace(/\/api\/?$/i, '');
-          imageUrl = `${apiRoot}${imageUrl}`;
-        }
-
-        productData = {
-          ...productData,
-          image_url: imageUrl,
-        };
+        // Image URL is now returned correctly by backend as absolute URL
+        productData = productData;
 
         setProduct(productData);
 
@@ -71,15 +62,7 @@ export default function ProductDetailPage() {
           
           const related = productsArray
             .filter((p: Product) => p.category === productData.category && p.id !== productData.id)
-            .slice(0, 4)
-            .map((p: Product) => {
-              let url = p.image_url;
-              if (url && url.startsWith('/uploads/')) {
-                const apiRoot = API_BASE_URL.replace(/\/api\/?$/i, '');
-                url = `${apiRoot}${url}`;
-              }
-              return { ...p, image_url: url };
-            });
+            .slice(0, 4);
           
           setRelatedProducts(related);
         } catch (err) {

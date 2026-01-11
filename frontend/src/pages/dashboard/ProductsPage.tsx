@@ -51,30 +51,12 @@ const ProductsPage = () => {
       const response = await apiCall(API.products, {}, token);
       // Handle paginated response format from backend
       const productsArray = response.data || (Array.isArray(response) ? response : []);
-      const productsData = Array.isArray(productsArray) ? productsArray.map((product: any) => {
-        let imageUrl = product.image_url;
-        
-        // Convert relative URLs to absolute URLs
-        if (imageUrl) {
-          if (imageUrl.startsWith('/uploads/')) {
-            // Make uploads path absolute using API_BASE_URL root
-            const apiRoot = API_BASE_URL.replace(/\/api\/?$/i, '')
-            imageUrl = `${apiRoot}${imageUrl}`;
-          } else if (imageUrl.startsWith('/assets/') || !imageUrl.startsWith('http')) {
-            // For old asset paths or any relative path, keep as is
-            // The onError handler will display a placeholder
-            imageUrl = imageUrl;
-          }
-        }
-        
-        return {
-          ...product,
-          key: String(product.id),
-          price: parseFloat(String(product.price)),
-          stock: parseInt(String(product.stock), 10),
-          image_url: imageUrl,
-        };
-      }) : [];
+      const productsData = Array.isArray(productsArray) ? productsArray.map((product: any) => ({
+        ...product,
+        key: String(product.id),
+        price: parseFloat(String(product.price)),
+        stock: parseInt(String(product.stock), 10),
+      })) : [];
       setProducts(productsData);
     } catch (error) {
       console.error('Failed to load products:', error);

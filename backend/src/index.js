@@ -4,6 +4,8 @@ import dotenv from 'dotenv';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 import compression from 'compression';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { logError, logRequest } from './utils/logger.js';
 import initializeDatabase from './database/init.js';
 import migrateDatabase from './database/migrate.js';
@@ -11,6 +13,10 @@ import startRefreshTokenCleanup from './jobs/refreshTokenCleanup.js';
 
 // Load environment variables
 dotenv.config();
+
+// Get absolute directory path for absolute file serving
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // ✅ SECURITY: Validate required environment variables at startup
 const requiredEnvVars = [
@@ -211,8 +217,11 @@ const app = express();
     app.use('/api/upload', uploadRoutes);
     app.use('/api/addresses', addressRoutes);
 
-    // Serve uploaded files statically
-    app.use('/uploads', express.static('./uploads'));
+    // Serve uploaded files statically with absolute path
+    app.use('/uploads', express.static(path.join(__dirname, '../uploads'), {
+      maxAge: '1h',
+      etag: false
+    }));
 
     // Health check
     app.get('/api/health', (req, res) => {

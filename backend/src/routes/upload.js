@@ -14,6 +14,18 @@ const uploadDir = path.join(__dirname, '../../uploads');
 // Ensure upload directory exists
 mkdir(uploadDir, { recursive: true }).catch(console.error);
 
+// Helper to get API base URL from environment or request
+const getApiBaseUrl = (req) => {
+  if (process.env.API_HOST) {
+    const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
+    return `${protocol}://${process.env.API_HOST}`;
+  }
+  // Auto-detect from request if API_HOST not set
+  const protocol = process.env.NODE_ENV === 'production' ? 'https' : req.protocol;
+  const host = req.get('host');
+  return `${protocol}://${host}`;
+};
+
 // Configure multer for file uploads
 const storage = multer.diskStorage({
   destination: async (req, file, cb) => {
@@ -63,8 +75,9 @@ router.post('/image', upload.single('image'), (req, res) => {
       return res.status(400).json({ error: 'No file uploaded' });
     }
 
-    // Generate absolute URL for the uploaded image
-    const imageUrl = `http://localhost:5001/uploads/${req.file.filename}`;
+    // Generate absolute URL for the uploaded image using dynamic base URL
+    const apiBase = getApiBaseUrl(req);
+    const imageUrl = `${apiBase}/uploads/${req.file.filename}`;
 
     res.json({
       success: true,
@@ -83,8 +96,9 @@ router.post('/', upload.single('file'), (req, res) => {
       return res.status(400).json({ error: 'No file uploaded' });
     }
 
-    // Generate absolute URL for the uploaded file
-    const fileUrl = `http://localhost:5001/uploads/${req.file.filename}`;
+    // Generate absolute URL for the uploaded file using dynamic base URL
+    const apiBase = getApiBaseUrl(req);
+    const fileUrl = `${apiBase}/uploads/${req.file.filename}`;
 
     res.json({
       success: true,
