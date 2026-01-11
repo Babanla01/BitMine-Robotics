@@ -108,36 +108,57 @@ const app = express();
 
     console.log('✅ CORS: Allowed origins configured:', allowedOrigins);
 
-    app.use(cors({
-      origin: function(origin, callback) {
-        // Always allow requests with no origin (like mobile apps or curl requests)
-        if (!origin) {
-          console.log('✅ CORS: Allowing request with no origin');
-          return callback(null, true);
-        }
+    // app.use(cors({
+    //   origin: function(origin, callback) {
+    //     // Always allow requests with no origin (like mobile apps or curl requests)
+    //     if (!origin) {
+    //       console.log('✅ CORS: Allowing request with no origin');
+    //       return callback(null, true);
+    //     }
 
-        // Check for exact match
-        if (allowedOrigins.indexOf(origin) !== -1) {
-          console.log('✅ CORS: Allowing origin (exact match):', origin);
-          return callback(null, true);
-        }
+    //     // Check for exact match
+    //     if (allowedOrigins.indexOf(origin) !== -1) {
+    //       console.log('✅ CORS: Allowing origin (exact match):', origin);
+    //       return callback(null, true);
+    //     }
 
-        // Check for subdomain match (*.bitmineroboticscw.cloud)
-        if (origin.endsWith('bitmineroboticscw.cloud')) {
-          console.log('✅ CORS: Allowing origin (subdomain match):', origin);
-          return callback(null, true);
-        }
+    //     // Check for subdomain match (*.bitmineroboticscw.cloud)
+    //     if (origin.endsWith('bitmineroboticscw.cloud')) {
+    //       console.log('✅ CORS: Allowing origin (subdomain match):', origin);
+    //       return callback(null, true);
+    //     }
 
-        // Block the request
-        console.error('❌ CORS: BLOCKED origin:', origin);
-        console.error('   Expected origins:', allowedOrigins.join(', '));
-        return callback(new Error('CORS policy violation'));
-      },
-      credentials: true,
-      methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD'],
-      allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
-      optionsSuccessStatus: 200
-    }));
+    //     // Block the request
+    //     console.error('❌ CORS: BLOCKED origin:', origin);
+    //     console.error('   Expected origins:', allowedOrigins.join(', '));
+    //     return callback(new Error('CORS policy violation'));
+    //   },
+    //   credentials: true,
+    //   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD'],
+    //   allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+    //   optionsSuccessStatus: 200
+    // }));
+
+      app.use(cors({
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      if (origin.endsWith('bitmineroboticscw.cloud')) {
+        return callback(null, true);
+      }
+
+      console.warn('❌ CORS blocked:', origin);
+      return callback(null, false);
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  }));
+
       
     app.use(morgan('dev'));
 

@@ -257,6 +257,8 @@ async function initializeDatabase() {
     console.log('✅ password_reset_otps table ready');
 
     console.log('✅ Database initialization complete');
+    console.log('DB USER:', process.env.DB_USER);
+
   } catch (error) {
     console.error('❌ Database initialization failed:', error.message);
   }
