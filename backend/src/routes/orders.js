@@ -1,7 +1,12 @@
 import express from 'express';
 import pool from '../config/database.js';
 import axios from 'axios';
-import emailjs from '@emailjs/nodejs';
+import { 
+  sendOrderConfirmationEmail, 
+  sendOrderShippedEmail, 
+  sendOrderDeliveredEmail, 
+  sendOrderCancelledEmail 
+} from '../utils/emailService.js';
 
 const router = express.Router();
 
@@ -207,25 +212,30 @@ router.post('/verify-payment', async (req, res) => {
 
       // Send confirmation email
       try {
-        const templateParams = {
-          to_email: customer_email,
-          customer_name,
-          order_number: orderNumber,
-          total_amount: finalTotalAmount.toLocaleString('en-NG', { style: 'currency', currency: 'NGN' }),
-          subtotal: finalSubtotal.toLocaleString('en-NG', { style: 'currency', currency: 'NGN' }),
-          street_address,
-          city,
-          state,
-          postal_code,
-          items_list: items.map(i => `${i.name} (x${i.quantity}) - ₦${(i.quantity * i.price).toLocaleString()}`).join('\n')
-        };
-
-        await emailjs.send(
-          'service_c4xxg3q',
-          'template_order_confirmation',
-          templateParams,
-          'DIAu_wU0XjhTN9yc8'
-        );
+        // SECURITY: Send email asynchronously (non-blocking)
+        // Email failure should not prevent order creation
+        sendOrderConfirmationEmail({
+          customerName: customer_name,
+          customerEmail: customer_email,
+          orderNumber: orderNumber,
+          items: items,
+          totalAmount: finalTotalAmount,
+          subtotal: finalSubtotal,
+          street_address: street_address,
+          city: city,
+          state: state,
+          postal_code: postal_code
+        })
+          .then(result => {
+            if (result.success) {
+              console.log(`✅ Order confirmation email sent to ${customer_email}`);
+            } else {
+              console.warn(`⚠️  Failed to send order confirmation to ${customer_email}: ${result.error}`);
+            }
+          })
+          .catch(err => {
+            console.error(`❌ Error sending order confirmation to ${customer_email}:`, err);
+          });
       } catch (emailError) {
         console.warn('Email notification failed (non-critical):', emailError);
       }
@@ -346,18 +356,67 @@ router.put('/:id/status', async (req, res) => {
       return res.status(400).json({ error: 'Invalid status' });
     }
 
-    const result = await pool.query(
+    // Get the order details before updating
+    const orderResult = await pool.query('SELECT * FROM orders WHERE id = $1', [id]);
+    if (orderResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+
+    const order = orderResult.rows[0];
+
+    // Update order status
+    const updateResult = await pool.query(
       `UPDATE orders SET order_status = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2 RETURNING *`,
       [order_status, id]
     );
 
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Order not found' });
+    const updatedOrder = updateResult.rows[0];
+
+    // Get order items for email
+    const itemsResult = await pool.query('SELECT * FROM order_items WHERE order_id = $1', [id]);
+    const items = itemsResult.rows;
+
+    // SECURITY: Send status update email asynchronously (non-blocking)
+    // Email failure should not prevent status update
+    if (order_status === 'shipped') {
+      sendOrderShippedEmail({
+        customerName: updatedOrder.customer_name,
+        customerEmail: updatedOrder.customer_email,
+        orderNumber: updatedOrder.order_number,
+        items: items,
+        street_address: updatedOrder.street_address,
+        city: updatedOrder.city,
+        state: updatedOrder.state,
+        postal_code: updatedOrder.postal_code,
+        estimatedDelivery: '3-5 business days'
+      })
+        .then(result => {
+          if (result.success) {
+            console.log(`✅ Shipped notification sent to ${updatedOrder.customer_email}`);
+          } else {
+            console.warn(`⚠️  Failed to send shipped notification: ${result.error}`);
+          }
+        })
+        .catch(err => console.error(`❌ Error sending shipped email:`, err));
+    } else if (order_status === 'delivered') {
+      sendOrderDeliveredEmail({
+        customerName: updatedOrder.customer_name,
+        customerEmail: updatedOrder.customer_email,
+        orderNumber: updatedOrder.order_number
+      })
+        .then(result => {
+          if (result.success) {
+            console.log(`✅ Delivered notification sent to ${updatedOrder.customer_email}`);
+          } else {
+            console.warn(`⚠️  Failed to send delivered notification: ${result.error}`);
+          }
+        })
+        .catch(err => console.error(`❌ Error sending delivered email:`, err));
     }
 
     res.json({
       message: 'Order status updated',
-      order: result.rows[0]
+      order: updatedOrder
     });
   } catch (error) {
     console.error('Error updating order status:', error);
@@ -369,19 +428,43 @@ router.put('/:id/status', async (req, res) => {
 router.put('/:id/cancel', async (req, res) => {
   try {
     const { id } = req.params;
+    const { reason = null } = req.body; // Optional cancellation reason
+
+    // Get the order details before updating
+    const orderResult = await pool.query('SELECT * FROM orders WHERE id = $1', [id]);
+    if (orderResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+
+    const order = orderResult.rows[0];
 
     const result = await pool.query(
       `UPDATE orders SET order_status = 'cancelled', updated_at = CURRENT_TIMESTAMP WHERE id = $1 RETURNING *`,
       [id]
     );
 
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Order not found' });
-    }
+    const cancelledOrder = result.rows[0];
+
+    // SECURITY: Send cancellation email asynchronously (non-blocking)
+    // Email failure should not prevent order cancellation
+    sendOrderCancelledEmail({
+      customerName: cancelledOrder.customer_name,
+      customerEmail: cancelledOrder.customer_email,
+      orderNumber: cancelledOrder.order_number,
+      reason: reason
+    })
+      .then(result => {
+        if (result.success) {
+          console.log(`✅ Cancellation notification sent to ${cancelledOrder.customer_email}`);
+        } else {
+          console.warn(`⚠️  Failed to send cancellation notification: ${result.error}`);
+        }
+      })
+      .catch(err => console.error(`❌ Error sending cancellation email:`, err));
 
     res.json({
       message: 'Order cancelled successfully',
-      order: result.rows[0]
+      order: cancelledOrder
     });
   } catch (error) {
     console.error('Error cancelling order:', error);

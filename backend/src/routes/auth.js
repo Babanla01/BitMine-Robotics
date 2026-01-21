@@ -5,6 +5,7 @@ import nodemailer from 'nodemailer';
 import crypto from 'crypto';
 import pool from '../config/database.js';
 import Joi from 'joi';
+import { sendWelcomeEmail } from '../utils/emailService.js';
 
 const router = express.Router();
 
@@ -228,6 +229,20 @@ router.post('/register', validate(registerSchema), async (req, res) => {
       } catch (err) {
         console.error('Failed to create refresh token:', err.message);
       }
+
+    // SECURITY: Send welcome email asynchronously (non-blocking)
+    // Email failure should not prevent user registration
+    sendWelcomeEmail(newUser.email, newUser.name)
+      .then(result => {
+        if (result.success) {
+          console.log(`✅ Welcome email sent to ${newUser.email}`);
+        } else {
+          console.warn(`⚠️  Failed to send welcome email to ${newUser.email}: ${result.error}`);
+        }
+      })
+      .catch(err => {
+        console.error(`❌ Error sending welcome email to ${newUser.email}:`, err);
+      });
 
     res.status(201).json({
       token,
