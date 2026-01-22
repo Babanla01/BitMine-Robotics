@@ -33,7 +33,7 @@ const ageGroups = ['Kids', 'Teens', 'Adults'];
 const skillLevels = ['All', 'Beginner', 'Intermediate', 'Advanced'];
 
 // Fisher-Yates shuffle algorithm
-const shuffleArray = <T,>(array: T[]): T[] => {
+const shuffleArray = <T extends Product>(array: T[]): T[] => {
   const shuffled = [...array];
   for (let i = shuffled.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -46,7 +46,6 @@ export default function ShopPage() {
   const { state: cartState, dispatch } = useContext(CartContext);
   const { addToast } = useToast();
   const [products, setProducts] = useState<Product[]>([]);
-  const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<string[]>(['All']);
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [selectedAges, setSelectedAges] = useState<string[]>([]);
@@ -88,7 +87,6 @@ export default function ShopPage() {
         });
         // Shuffle products for better variety
         const shuffledProducts = shuffleArray(productsWithAbsoluteUrls);
-        setAllProducts(shuffledProducts);
         setProducts(shuffledProducts);
         setTotalProducts(data.pagination?.total || shuffledProducts.length);
         setCurrentPage(1);
