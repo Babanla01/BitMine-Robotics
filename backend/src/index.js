@@ -62,7 +62,6 @@ import tutorRoutes from './routes/tutor.js';
 import bookingRoutes from './routes/booking.js';
 import partnerRoutes from './routes/partner.js';
 import adminRoutes from './routes/admin.js';
-import paymentRoutes from './routes/payment.js';
 import uploadRoutes from './routes/upload.js';
 import addressRoutes from './routes/addresses.js';
 import categoriesRoutes from './routes/categories.js';
@@ -86,8 +85,8 @@ const app = express();
     }
 
     // Middleware
-    app.use(express.json());
-    app.use(express.urlencoded({ extended: true }));
+    app.use(express.json({ limit: '10mb' })); // Limit for product data (images uploaded separately)
+    app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
     // Enable response compression for gzip
     app.use(compression({
@@ -185,7 +184,7 @@ const app = express();
     // Rate Limiting - Protect against brute force
     const limiter = rateLimit({
       windowMs: 15 * 60 * 1000, // 15 minutes
-      max: 100, // Limit each IP to 100 requests per windowMs
+      max: 200, // Limit each IP to 200 requests per windowMs (increased for product operations which can involve multiple requests)
       message: 'Too many requests from this IP, please try again later.'
     });
 
@@ -213,7 +212,6 @@ const app = express();
     app.use('/api/booking', bookingRoutes);
     app.use('/api/partner', partnerRoutes);
     app.use('/api/admin', adminRoutes);
-    app.use('/api/payment', paymentRoutes);
     app.use('/api/upload', uploadRoutes);
     app.use('/api/addresses', addressRoutes);
 
