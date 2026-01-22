@@ -28,6 +28,9 @@ const ProductsPage = () => {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [modalWidth, setModalWidth] = useState(700);
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
+  const [totalProducts, setTotalProducts] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
   const { token } = useAuth();
 
   // Calculate modal width responsively
@@ -42,13 +45,13 @@ const ProductsPage = () => {
 
   // Fetch products on mount
   useEffect(() => {
-    fetchProducts();
+    fetchProducts(1); // Always start with page 1
     fetchCategories();
   }, [token]);
 
-  const fetchProducts = async () => {
+  const fetchProducts = async (page: number = 1) => {
     try {
-      const response = await apiCall(API.products, {}, token);
+      const response = await apiCall(`${API.products}?page=${page}&limit=${itemsPerPage}`, {}, token);
       // Handle paginated response format from backend
       const productsArray = response.data || (Array.isArray(response) ? response : []);
       const productsData = Array.isArray(productsArray) ? productsArray.map((product: any) => ({
@@ -58,6 +61,8 @@ const ProductsPage = () => {
         stock: parseInt(String(product.stock), 10),
       })) : [];
       setProducts(productsData);
+      setTotalProducts(response.pagination?.total || 0);
+      setCurrentPage(page);
     } catch (error) {
       console.error('Failed to load products:', error);
       message.error('Failed to load products');
@@ -227,6 +232,7 @@ const ProductsPage = () => {
           body: JSON.stringify(values),
         }, token || undefined);
         message.success('Product updated successfully');
+        fetchProducts(currentPage);
       } else {
         // Add new product
         await apiCall(API.products, {
@@ -234,12 +240,15 @@ const ProductsPage = () => {
           body: JSON.stringify(values),
         }, token || undefined);
         message.success('Product added successfully');
+        // Fetch the last page to show the newly added product
+        const newTotal = totalProducts + 1;
+        const lastPage = Math.ceil(newTotal / itemsPerPage);
+        fetchProducts(lastPage);
       }
       setIsModalVisible(false);
       form.resetFields();
       setEditingId(null);
       setSelectedCategoryId(null);
-      fetchProducts(); // Refresh products to show updated data
     } catch (error) {
       message.error(error instanceof Error ? error.message : 'Failed to save product');
     }

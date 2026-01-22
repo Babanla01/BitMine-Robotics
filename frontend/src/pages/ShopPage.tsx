@@ -32,10 +32,21 @@ interface Category {
 const ageGroups = ['Kids', 'Teens', 'Adults'];
 const skillLevels = ['All', 'Beginner', 'Intermediate', 'Advanced'];
 
+// Fisher-Yates shuffle algorithm
+const shuffleArray = <T,>(array: T[]): T[] => {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+};
+
 export default function ShopPage() {
   const { state: cartState, dispatch } = useContext(CartContext);
   const { addToast } = useToast();
   const [products, setProducts] = useState<Product[]>([]);
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<string[]>(['All']);
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [selectedAges, setSelectedAges] = useState<string[]>([]);
@@ -46,27 +57,26 @@ export default function ShopPage() {
   const [sortBy, setSortBy] = useState('default');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(15); // 5 columns × 3 rows
+  const [totalProducts, setTotalProducts] = useState(0);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   // Fetch products from backend
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const data = await apiCall(API.products);
+        // Fetch first page with 100 items to start with
+        const data = await apiCall(`${API.products}?page=1&limit=100`);
         // Handle both array and paginated response formats
         const productsArray = Array.isArray(data) ? data : data.data || [];
         // Convert relative URLs to absolute URLs
         const productsWithAbsoluteUrls = productsArray.map((product: Product) => {
           let imageUrl = product.image_url;
           
-          // Convert relative URLs to absolute URLs
-            if (imageUrl) {
+          if (imageUrl) {
             if (imageUrl.startsWith('/uploads/')) {
-              // Already an uploads path, make it absolute using API root
               const apiRoot = API_BASE_URL.replace(/\/api\/?$/i, '')
               imageUrl = `${apiRoot}${imageUrl}`;
             } else if (imageUrl.startsWith('/assets/') || !imageUrl.startsWith('http')) {
-              // For old asset paths or any relative path, keep as is
-              // The onError handler will display a placeholder
               imageUrl = imageUrl;
             }
           }
@@ -76,7 +86,12 @@ export default function ShopPage() {
             image_url: imageUrl,
           };
         });
-        setProducts(productsWithAbsoluteUrls);
+        // Shuffle products for better variety
+        const shuffledProducts = shuffleArray(productsWithAbsoluteUrls);
+        setAllProducts(shuffledProducts);
+        setProducts(shuffledProducts);
+        setTotalProducts(data.pagination?.total || shuffledProducts.length);
+        setCurrentPage(1);
       } catch (error) {
         console.error('Failed to fetch products:', error);
         addToast('Failed to load products', 'error');
@@ -447,6 +462,43 @@ export default function ShopPage() {
                     );
                   })}
                 </div>
+
+                {/* Load More Button */}
+                {products.length < totalProducts && (
+                  <div className="text-center mt-4 mb-5">
+                    <button 
+                      className="btn btn-outline-primary btn-lg"
+                      onClick={async () => {
+                        setIsLoadingMore(true);
+                        try {
+                          const nextPage = currentPage + 1;
+                          const data = await apiCall(`${API.products}?page=${nextPage}&limit=100`);
+                          const productsArray = Array.isArray(data) ? data : data.data || [];
+                          const productsWithAbsoluteUrls = productsArray.map((product: Product) => {
+                            let imageUrl = product.image_url;
+                            if (imageUrl) {
+                              if (imageUrl.startsWith('/uploads/')) {
+                                const apiRoot = API_BASE_URL.replace(/\/api\/?$/i, '')
+                                imageUrl = `${apiRoot}${imageUrl}`;
+                              }
+                            }
+                            return { ...product, image_url: imageUrl };
+                          });
+                          const shuffledNewProducts = shuffleArray(productsWithAbsoluteUrls);
+                          setProducts([...products, ...shuffledNewProducts]);
+                          setCurrentPage(nextPage);
+                        } catch (error) {
+                          addToast('Failed to load more products', 'error');
+                        } finally {
+                          setIsLoadingMore(false);
+                        }
+                      }}
+                      disabled={isLoadingMore}
+                    >
+                      {isLoadingMore ? 'Loading...' : `Load More (${products.length}/${totalProducts})`}
+                    </button>
+                  </div>
+                )}
 
                 {/* Pagination */}
                 {totalPages > 1 && (
