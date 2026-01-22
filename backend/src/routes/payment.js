@@ -59,4 +59,36 @@ router.post('/verify', (req, res) => {
   }
 });
 
+// Handle Paystack callback redirect
+// This endpoint receives the Paystack callback and redirects to frontend payment verification
+router.get('/callback', (req, res) => {
+  try {
+    const { reference, trxref } = req.query;
+
+    if (!reference && !trxref) {
+      return res.status(400).json({ error: 'Payment reference is required' });
+    }
+
+    // Use reference from query params (Paystack sends it as 'reference')
+    const paymentReference = reference || trxref;
+
+    // Redirect to frontend payment callback page which will verify the payment
+    let frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5174';
+    
+    // Remove trailing slash if present to avoid double slashes
+    frontendUrl = frontendUrl.replace(/\/$/, '');
+    
+    const redirectUrl = `${frontendUrl}/payment/callback?reference=${paymentReference}`;
+
+    console.log(`Payment callback received - redirecting to: ${redirectUrl}`);
+    
+    res.redirect(redirectUrl);
+  } catch (error) {
+    console.error('Error handling payment callback:', error);
+    let frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5174';
+    frontendUrl = frontendUrl.replace(/\/$/, '');
+    res.redirect(`${frontendUrl}/cart?error=payment_callback_error`);
+  }
+});
+
 export default router;
