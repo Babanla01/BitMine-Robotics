@@ -292,7 +292,12 @@ const ProductsPage = () => {
         <Table 
           columns={columns} 
           dataSource={products} 
-          pagination={{ pageSize: 10 }}
+          pagination={{
+            pageSize: itemsPerPage,
+            current: currentPage,
+            total: totalProducts,
+            onChange: (page) => fetchProducts(page)
+          }}
           scroll={{ x: 'max-content' }}
           size="small"
         />
