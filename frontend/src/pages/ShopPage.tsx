@@ -65,10 +65,32 @@ export default function ShopPage() {
       try {
         // Fetch first page with 100 items to start with
         const data = await apiCall(`${API.products}?page=1&limit=100`);
+        
+        // Debug: log the response to see structure
+        console.log('ShopPage API Response:', data);
+        
         // Handle both array and paginated response formats
-        const productsArray = Array.isArray(data) ? data : data.data || [];
+        let productsArray: Product[] = [];
+        let totalCount = 0;
+        
+        if (Array.isArray(data)) {
+          // If it's directly an array
+          productsArray = data;
+          totalCount = data.length;
+        } else if (data?.data && Array.isArray(data.data)) {
+          // If data is wrapped in .data property
+          productsArray = data.data;
+          totalCount = data.pagination?.total || data.data.length;
+        } else if (Array.isArray(data)) {
+          productsArray = data;
+          totalCount = data.length;
+        }
+        
+        console.log('Products array:', productsArray);
+        console.log('Total count:', totalCount);
+        
         // Convert relative URLs to absolute URLs
-        const productsWithAbsoluteUrls = productsArray.map((product: Product) => {
+        const productsWithAbsoluteUrls = productsArray.map((product: any) => {
           let imageUrl = product.image_url;
           
           if (imageUrl) {
@@ -83,12 +105,15 @@ export default function ShopPage() {
           return {
             ...product,
             image_url: imageUrl,
-          };
+          } as Product;
         });
+        
         // Shuffle products for better variety
         const shuffledProducts = shuffleArray(productsWithAbsoluteUrls);
+        console.log('Shuffled products:', shuffledProducts.length);
+        
         setProducts(shuffledProducts);
-        setTotalProducts(data.pagination?.total || shuffledProducts.length);
+        setTotalProducts(totalCount);
         setCurrentPage(1);
       } catch (error) {
         console.error('Failed to fetch products:', error);

@@ -52,17 +52,33 @@ const ProductsPage = () => {
   const fetchProducts = async (page: number = 1) => {
     try {
       const response = await apiCall(`${API.products}?page=${page}&limit=${itemsPerPage}`, {}, token);
+      
+      console.log('ProductsPage API Response:', response);
+      
       // Handle paginated response format from backend
-      const productsArray = response.data || (Array.isArray(response) ? response : []);
+      let productsArray: ProductType[] = [];
+      let totalCount = 0;
+      
+      if (Array.isArray(response)) {
+        productsArray = response;
+        totalCount = response.length;
+      } else if (response?.data && Array.isArray(response.data)) {
+        productsArray = response.data;
+        totalCount = response.pagination?.total || response.data.length;
+      }
+      
       const productsData = Array.isArray(productsArray) ? productsArray.map((product: any) => ({
         ...product,
         key: String(product.id),
         price: parseFloat(String(product.price)),
         stock: parseInt(String(product.stock), 10),
       })) : [];
+      
       setProducts(productsData);
-      setTotalProducts(response.pagination?.total || 0);
+      setTotalProducts(totalCount);
       setCurrentPage(page);
+      
+      console.log('Products loaded:', productsData.length, 'Total:', totalCount);
     } catch (error) {
       console.error('Failed to load products:', error);
       message.error('Failed to load products');
