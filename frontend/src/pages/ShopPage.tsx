@@ -46,6 +46,15 @@ export default function ShopPage() {
   const { state: cartState, dispatch } = useContext(CartContext);
   const { addToast } = useToast();
   const [products, setProducts] = useState<Product[]>([]);
+
+  // Format currency with naira symbol and comma separation
+  const formatCurrency = (amount: number | string) => {
+    const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
+    return new Intl.NumberFormat('en-NG', {
+      style: 'currency',
+      currency: 'NGN',
+    }).format(numAmount);
+  };
   const [categories, setCategories] = useState<string[]>(['All']);
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [selectedAges, setSelectedAges] = useState<string[]>([]);
@@ -466,7 +475,7 @@ export default function ShopPage() {
                             </p>
                             <div className="product-footer d-flex justify-content-between align-items-center">
                               <div className="product-price">
-                                <span className="fw-bold fs-5 text-dark">₦{product.price.toLocaleString()}</span>
+                                <span className="fw-bold fs-5 text-dark">{formatCurrency(product.price)}</span>
                               </div>
                               <button
                                 className="btn btn-primary btn-sm"
