@@ -114,7 +114,7 @@ export default function ContactPage() {
             <div className="col-12 col-lg-6 order-1 order-lg-2">
               <div className="text-center">
                 <img 
-                  src="/assets/Hero-Bg.png" 
+                  src="/assets/contact-img.png" 
                   alt="BitMine Robotics Team" 
                   className="img-fluid rounded-4 shadow-lg"
                   style={{

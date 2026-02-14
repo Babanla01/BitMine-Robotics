@@ -14,7 +14,7 @@ export default function TutorPage() {
   return (
     <div className="bg-light">
       {/* Hero Section */}
-      <section className="hero-bg position-relative d-flex align-items-center border-none rounded-4 bg-gradient-soft-primary-secondary m-3">
+      <section className="hero-bg tutor-bg position-relative d-flex align-items-center border-none rounded-4 bg-gradient-soft-primary-secondary m-3">
         <div className="position-absolute hero-element top-0 start-0 w-100 h-100 overflow-hidden">
           <div className="position-absolute hero-bot-element">
             <GraduationCap size={64} color="#ffff9999" className="animate-float" />

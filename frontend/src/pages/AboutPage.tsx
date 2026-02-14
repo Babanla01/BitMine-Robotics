@@ -1,4 +1,4 @@
-import { Users, Target, Zap, Award, ArrowRight, Instagram, Linkedin, Heart } from 'lucide-react'
+import { Users, Target, Zap, Award, ArrowRight, Instagram, Linkedin, Heart, Twitter } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
 export default function AboutPage() {
@@ -32,7 +32,7 @@ export default function AboutPage() {
             <div className="col-12 col-lg-6">
               <div className="rounded-4 overflow-hidden shadow-lg">
                 <img 
-                  src="/assets/About-Image-1.jpg" 
+                  src="/assets/About-bitmine.png" 
                   alt="BitMine Team" 
                   className="w-100 object-fit-cover"
                   style={{ height: '400px' }}
@@ -132,7 +132,7 @@ export default function AboutPage() {
               </div>
             </div>
             <div className="col-12 col-lg-6">
-              <img src="/assets/serviceShop-2.png" alt="Our Target" className="rounded-4 shadow-lg w-100" style={{ minHeight: '400px', objectFit: 'cover', display: 'block' }} />
+              <img src="/assets/3da4.jpg" alt="Our Target" className="rounded-4 shadow-lg w-100" style={{ minHeight: '400px', objectFit: 'cover', display: 'block' }} />
             </div>
           </div>
         </div>
@@ -143,7 +143,7 @@ export default function AboutPage() {
         <div className="container">
           <div className="row align-items-center g-5">
             <div className="col-12 col-lg-6">
-              <img src="/assets/serviceTutor.png" alt="Success Stories" className="rounded-4 shadow-lg w-100" style={{ minHeight: '400px', objectFit: 'cover', display: 'block' }} />
+              <img src="/assets/A1.jpg" alt="Success Stories" className="rounded-4 shadow-lg w-100" style={{ minHeight: '400px', objectFit: 'cover', display: 'block' }} />
             </div>
             <div className="col-12 col-lg-6">
               <h2 className="h2 fw-bold text-dark mb-4 concertOne">Our Proven Success Stories</h2>
@@ -234,7 +234,7 @@ export default function AboutPage() {
               </div>
             </div>
             <div className="col-12 col-lg-6">
-              <img src="/assets/serviceEvent.png" alt="Our Values" className="rounded-4 shadow-lg w-100" style={{ minHeight: '400px', objectFit: 'cover', display: 'block' }} />
+              <img src="/assets/f4.jpg" alt="Our Values" className="rounded-4 shadow-lg w-100" style={{ minHeight: '400px', objectFit: 'cover', display: 'block' }} />
             </div>
           </div>
         </div>
@@ -255,16 +255,16 @@ export default function AboutPage() {
             <div className="col-12 col-md-6 col-lg-4">
               <div className="card border-0 text-dark overflow-hidden" style={{ borderRadius: '20px', backgroundColor: '#E0F2FE' }}>
                 <div style={{ height: '300px', overflow: 'hidden', borderRadius: '20px 20px 0 0' }}>
-                  <img src="/assets/About-Image-1.jpg" alt="Instructor 1" className="w-100 h-100 object-fit-cover" />
+                  <img src="/assets/abdulbasit.jpeg" alt="Instructor 1" className="w-100 h-100 object-fit-cover" />
                 </div>
                 <div className="p-4">
-                  <h5 className="fw-bold mb-1 text-dark">John Okafor</h5>
-                  <p className="text-muted small mb-3">Lead Robotics Instructor</p>
+                  <h5 className="fw-bold mb-1 text-dark">Sansaliu Abdul-Basit</h5>
+                  <p className="text-muted small mb-3">Robotics and mechatronics instructor</p>
                   <div className="d-flex gap-3">
                     <a href="#" className="text-muted" style={{ textDecoration: 'none' }}>
-                      <Instagram size={18} />
+                      <Twitter size={18} />
                     </a>
-                    <a href="#" className="text-muted" style={{ textDecoration: 'none' }}>
+                    <a href="https://www.linkedin.com/in/sansaliu-abdulbasit-3697401b7" className="text-muted" style={{ textDecoration: 'none' }}>
                       <Linkedin size={18} />
                     </a>
                   </div>
@@ -276,16 +276,16 @@ export default function AboutPage() {
             <div className="col-12 col-md-6 col-lg-4">
               <div className="card border-0 text-dark overflow-hidden" style={{ borderRadius: '20px', backgroundColor: '#E0F2FE' }}>
                 <div style={{ height: '300px', overflow: 'hidden', borderRadius: '20px 20px 0 0' }}>
-                  <img src="/assets/About-Image-2.jpg" alt="Instructor 2" className="w-100 h-100 object-fit-cover" />
+                  <img src="/assets/babanla.png" alt="Instructor 2" className="w-100 h-100 object-fit-cover " />
                 </div>
                 <div className="p-4">
-                  <h5 className="fw-bold mb-1 text-dark">Chioma Adeyemi</h5>
-                  <p className="text-muted small mb-3">Coding Specialist</p>
+                  <h5 className="fw-bold mb-1 text-dark">Mahammud Abolaji</h5>
+                  <p className="text-muted small mb-3">Software and Coding Specialist</p>
                   <div className="d-flex gap-3">
                     <a href="#" className="text-muted" style={{ textDecoration: 'none' }}>
-                      <Instagram size={18} />
+                      <Twitter size={18} />
                     </a>
-                    <a href="#" className="text-muted" style={{ textDecoration: 'none' }}>
+                    <a href="www.linkedin.com/in/mahammud-abolaji-8676852b4" className="text-muted" style={{ textDecoration: 'none' }}>
                       <Linkedin size={18} />
                     </a>
                   </div>
@@ -300,13 +300,13 @@ export default function AboutPage() {
                   <img src="/assets/serviceEvent.png" alt="Instructor 3" className="w-100 h-100 object-fit-cover" />
                 </div>
                 <div className="p-4">
-                  <h5 className="fw-bold mb-1 text-dark">Emeka Nwosu</h5>
-                  <p className="text-muted small mb-3">STEM Curriculum Developer</p>
+                  <h5 className="fw-bold mb-1 text-dark">Gbenle Hassan</h5>
+                  <p className="text-muted small mb-3">Designer and Robotics Engineer</p>
                   <div className="d-flex gap-3">
                     <a href="#" className="text-muted" style={{ textDecoration: 'none' }}>
-                      <Instagram size={18} />
+                      <Twitter size={18} />
                     </a>
-                    <a href="#" className="text-muted" style={{ textDecoration: 'none' }}>
+                    <a href="https://www.linkedin.com/in/gbolahan-gbenle-842a9323a" className="text-muted" style={{ textDecoration: 'none' }}>
                       <Linkedin size={18} />
                     </a>
                   </div>
@@ -324,10 +324,10 @@ export default function AboutPage() {
             <div className="col-12 col-lg-5">
               <div className="rounded-4 overflow-hidden shadow-lg">
                 <img 
-                  src="/assets/About-Image-1.jpg" 
+                  src="/assets/Prince.png" 
                   alt="Founder" 
-                  className="w-100" 
-                  style={{ minHeight: '400px', objectFit: 'cover' }} 
+                  className="w-100 h-100" 
+                  style={{ minHeight: '400px', objectFit: 'cover' , display: 'block', maxHeight:'400px'}} 
                 />
               </div>
             </div>
@@ -340,10 +340,10 @@ export default function AboutPage() {
                   <h5 className="fw-bold text-primary mb-1">PrinceWill Ugo</h5>
                   <p className="text-muted small mb-3">Founder & CEO of BitMine Robotics</p>
                   <div className="d-flex gap-3">
-                    <a href="#" className="text-primary" style={{ textDecoration: 'none' }}>
-                      <Instagram size={20} />
+                    <a href="https://x.com/bitminecliq?s=11" className="text-primary" style={{ textDecoration: 'none' }}>
+                      <Twitter size={20} />
                     </a>
-                    <a href="#" className="text-primary" style={{ textDecoration: 'none' }}>
+                    <a href="https://www.linkedin.com/in/ugochukwu-ogbu-653a0816a/" className="text-primary" style={{ textDecoration: 'none' }}>
                       <Linkedin size={20} />
                     </a>
                   </div>

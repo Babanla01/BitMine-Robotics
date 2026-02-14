@@ -657,6 +657,10 @@ a:focus, button:focus, .btn:focus {
   overflow: hidden;
 }
 
+.tutor-bg{
+  background-image: url('./assets/Tutoring Hero.png');
+  background-position: center;
+}
 .hero-bg::after {
   content: '';
   position: absolute;

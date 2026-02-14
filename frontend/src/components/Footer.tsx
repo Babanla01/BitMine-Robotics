@@ -1,6 +1,7 @@
-import { Mail, Phone, MapPin, Facebook, Instagram, Twitter, Linkedin } from 'lucide-react'
+import { Mail, Phone, MapPin, Instagram, Twitter, Linkedin } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import logo from '../assets/Frame 20.png'
+import { FaTiktok } from 'react-icons/fa6'
 
 export default function Footer() {
   return (
@@ -14,10 +15,18 @@ export default function Footer() {
               Empowering the next generation of innovators through robotics education and hands-on learning experiences.
             </p>
             <div className="d-flex gap-3 mt-2">
-              <Facebook size={20} className="text-white-50" />
-              <Instagram size={20} className="text-white-50" />
-              <Twitter size={20} className="text-white-50" />
-              <Linkedin size={20} className="text-white-50" />
+              <a href="https://www.tiktok.com/@bitmineroboticscw" target="_blank" rel="noopener noreferrer" className="text-white-50 text-decoration-none hover-text-white" style={{ transition: 'color 0.2s' }}>
+                <FaTiktok size={20} />
+              </a>
+              <a href="https://www.instagram.com/bitmineroboticscw/" target="_blank" rel="noopener noreferrer" className="text-white-50 text-decoration-none hover-text-white" style={{ transition: 'color 0.2s' }}>
+                <Instagram size={20} />
+              </a>
+              <a href="https://x.com/bitminerobotics" target="_blank" rel="noopener noreferrer" className="text-white-50 text-decoration-none hover-text-white" style={{ transition: 'color 0.2s' }}>
+                <Twitter size={20} />
+              </a>
+              <a href="https://linkedin.com/company/bitminerobotics" target="_blank" rel="noopener noreferrer" className="text-white-50 text-decoration-none hover-text-white" style={{ transition: 'color 0.2s' }}>
+                <Linkedin size={20} />
+              </a>
             </div>
           </div>
 
@@ -55,11 +64,11 @@ export default function Footer() {
               </div>
               <div className="d-flex align-items-center gap-2 mb-2">
                 <Phone size={18} color="#0d6efd" />
-                <span>+234 XXX XXX XXXX</span>
+                <a href="tel:+2349039404716" className="text-white-50 text-decoration-none">+234 903 940 4716</a>
               </div>
               <div className="d-flex align-items-center gap-2">
                 <Mail size={18} color="#0d6efd" />
-                <span>info@bitminerobotics.com</span>
+                <a href="mailto:bitmineroboticscw@gmail.com" className="text-white-50 text-decoration-none">bitmineroboticscw@gmail.com</a>
               </div>
             </div>
           </div>
@@ -67,7 +76,7 @@ export default function Footer() {
 
         {/* Bottom Bar */}
         <div className="border-top border-secondary mt-4 pt-4 d-flex flex-column flex-md-row justify-content-between align-items-center">
-          <p className="text-white-50 small mb-2 mb-md-0">© 2025 BitMine Robotics. All rights reserved.</p>
+          <p className="text-white-50 small mb-2 mb-md-0">© {new Date().getFullYear()} BitMine Robotics. All rights reserved.</p>
           <div className="d-flex gap-4">
             <Link to="/about" className="text-white-50 small link-underline-opacity-0 link-underline-opacity-50-hover">Privacy Policy</Link>
             <Link to="/about" className="text-white-50 small link-underline-opacity-0 link-underline-opacity-50-hover">Terms of Service</Link>
