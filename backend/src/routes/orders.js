@@ -7,6 +7,11 @@ import {
   sendOrderDeliveredEmail, 
   sendOrderCancelledEmail 
 } from '../utils/emailService.js';
+import {
+  getDeliveryFee,
+  calculateTax,
+  validateAndRecalculatePrices
+} from '../utils/priceCalculator.js';
 
 const router = express.Router();
 
@@ -22,18 +27,55 @@ router.post('/initialize-payment', async (req, res) => {
       state,
       postal_code,
       items,
-      subtotal,
-      total_amount
+      subtotal: clientSubtotal,
+      tax: clientTax,
+      delivery_fee: clientDeliveryFee,
+      total_amount: clientTotalAmount
     } = req.body;
 
-    if (!customer_name || !customer_email || !customer_phone || !street_address || !city || !state || !items || !total_amount) {
+    if (!customer_name || !customer_email || !customer_phone || !street_address || !city || !state || !items || !clientTotalAmount) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
-    // Use total_amount as-is (no delivery fee added)
-    const finalTotal = parseFloat(total_amount);
+    // SECURITY: Fetch current product prices from database
+    const productIds = items.map(item => item.product_id);
+    const productsResult = await pool.query(
+      'SELECT id, name, price FROM products WHERE id = ANY($1)',
+      [productIds]
+    );
 
-    // Initialize Paystack payment
+    if (productsResult.rows.length !== items.length) {
+      return res.status(400).json({ 
+        error: 'One or more products not found in database',
+        message: 'Some items in your cart are no longer available'
+      });
+    }
+
+    // SECURITY: Validate prices from database
+    const priceValidation = validateAndRecalculatePrices(items, productsResult.rows);
+    
+    if (!priceValidation.isValid) {
+      console.warn('Price validation failed:', priceValidation.message);
+      return res.status(400).json({ 
+        error: 'Price validation failed',
+        message: priceValidation.message,
+        hint: 'Your cart prices may have changed. Please refresh and try again.'
+      });
+    }
+
+    // Calculate correct amounts server-side
+    const finalSubtotal = priceValidation.calculatedSubtotal;
+    const finalTax = calculateTax(finalSubtotal);
+    const finalDeliveryFee = getDeliveryFee(state);
+    const finalTotal = parseFloat((finalSubtotal + finalTax + finalDeliveryFee).toFixed(2));
+
+    // Optional: Log if client amounts differ significantly from calculated
+    const clientTotal = parseFloat(clientTotalAmount);
+    if (Math.abs(clientTotal - finalTotal) > 0.01) {
+      console.warn(`Total mismatch: Client sent ₦${clientTotal}, calculated ₦${finalTotal}`);
+    }
+
+    // Initialize Paystack payment with server-calculated amounts
     const paystackUrl = 'https://api.paystack.co/transaction/initialize';
     const callbackUrl = `${process.env.FRONTEND_URL || 'http://localhost:5174'}/payment/callback`;
     
@@ -50,7 +92,9 @@ router.post('/initialize-payment', async (req, res) => {
         state,
         postal_code,
         items: items,
-        subtotal: parseFloat(subtotal),
+        subtotal: finalSubtotal,
+        tax: finalTax,
+        delivery_fee: finalDeliveryFee,
         total_amount: finalTotal
       }
     }, {
@@ -133,6 +177,8 @@ router.post('/verify-payment', async (req, res) => {
         postal_code,
         items,
         subtotal,
+        tax,
+        delivery_fee,
         total_amount
       } = metadata;
 
@@ -153,8 +199,9 @@ router.post('/verify-payment', async (req, res) => {
 
       // Ensure all amounts are numbers
       const finalSubtotal = parseFloat(subtotal) || 0;
-      const finalDeliveryFee = 0; // No delivery fee
-      const finalTotalAmount = parseFloat(total_amount) || finalSubtotal;
+      const finalTax = parseFloat(tax) || 0;
+      const finalDeliveryFee = parseFloat(delivery_fee) || 0;
+      const finalTotalAmount = parseFloat(total_amount) || (finalSubtotal + finalTax + finalDeliveryFee);
 
       // Generate order number
       const orderNumber = `ORD-${Date.now()}`;
@@ -167,9 +214,9 @@ router.post('/verify-payment', async (req, res) => {
         INSERT INTO orders (
           order_number, customer_name, customer_email, customer_phone,
           street_address, city, state, postal_code, country,
-          subtotal, delivery_fee, total_amount, payment_status,
+          subtotal, tax_amount, delivery_fee, total_amount, payment_status,
           order_status, paystack_reference, created_at, updated_at
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
         RETURNING *;
       `;
 
@@ -184,6 +231,7 @@ router.post('/verify-payment', async (req, res) => {
         postal_code,
         'Nigeria',
         finalSubtotal,
+        finalTax,
         finalDeliveryFee,
         finalTotalAmount,
         'completed',
@@ -219,8 +267,10 @@ router.post('/verify-payment', async (req, res) => {
           customerEmail: customer_email,
           orderNumber: orderNumber,
           items: items,
-          totalAmount: finalTotalAmount,
           subtotal: finalSubtotal,
+          tax: finalTax,
+          delivery_fee: finalDeliveryFee,
+          totalAmount: finalTotalAmount,
           street_address: street_address,
           city: city,
           state: state,

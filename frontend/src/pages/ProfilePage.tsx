@@ -6,9 +6,10 @@ import { useNavigate } from 'react-router-dom'
 import { API_BASE_URL } from '../config/api'
 
 const NIGERIAN_STATES = [
-  'Lagos', 'Abuja', 'Port Harcourt', 'Kano', 'Ibadan', 'Kaduna', 'Enugu', 'Calabar', 'Warri',
-  'Ilorin', 'Benin City', 'Akure', 'Abeokuta', 'Gusau', 'Yola', 'Bauchi', 'Zaria', 'Lafia',
-  'Jos', 'Okada', 'Other'
+  'Abia', 'Adamawa', 'Akwa Ibom', 'Anambra', 'Bauchi', 'Bayelsa', 'Benue', 'Borno', 'Cross River',
+  'Delta', 'Ebonyi', 'Edo', 'Ekiti', 'Enugu', 'FCT', 'Gombe', 'Imo', 'Jigawa', 'Kaduna', 'Kano',
+  'Katsina', 'Kebbi', 'Kogi', 'Kwara', 'Lagos', 'Nasarawa', 'Niger', 'Ogun', 'Ondo', 'Osun', 'Oyo',
+  'Plateau', 'Rivers', 'Sokoto', 'Taraba', 'Yobe', 'Zamfara'
 ]
 
 export default function ProfilePage() {

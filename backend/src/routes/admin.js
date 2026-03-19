@@ -319,11 +319,16 @@ router.put('/profile/:userId', async (req, res) => {
 
     const updatedUser = userResult.rows[0];
 
-    // Save default address
+    // Save default address (delete existing default and insert new one)
+    const deleteOldAddressQuery = `
+      DELETE FROM user_addresses 
+      WHERE user_id = $1 AND is_default = TRUE;
+    `;
+    await pool.query(deleteOldAddressQuery, [userId]);
+
     const addressQuery = `
       INSERT INTO user_addresses (user_id, street_address, city, state, postal_code, is_default)
       VALUES ($1, $2, $3, $4, $5, TRUE)
-      ON CONFLICT DO NOTHING
       RETURNING *;
     `;
 

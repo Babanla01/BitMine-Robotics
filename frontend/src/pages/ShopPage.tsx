@@ -228,8 +228,8 @@ export default function ShopPage() {
         <div className="shop-header mb-5">
           <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
             <div>
-              <h1 className="h-xl fw-bold text-dark mb-2 concertOne">Shop Robotics Kits</h1>
-              <p className="text-medium mb-0">Discover our collection of educational robotics kits and accessories</p>
+              <h1 className="h-xl fw-bold text-dark mb-2 concertOne">Shop Tech Kits</h1>
+              <p className="text-medium mb-0">Discover our collection of technology, educational, robotics kits, books and accessories</p>
             </div>
             <div className="d-flex gap-2 align-items-center">
               <button 

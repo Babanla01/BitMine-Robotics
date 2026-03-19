@@ -38,10 +38,23 @@ CREATE TABLE cart_items (
 -- Orders Table
 CREATE TABLE orders (
   id SERIAL PRIMARY KEY,
-  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  total_price DECIMAL(10, 2) NOT NULL,
+  user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+  order_number VARCHAR(255) UNIQUE NOT NULL,
+  customer_name VARCHAR(255) NOT NULL,
+  customer_email VARCHAR(255) NOT NULL,
+  customer_phone VARCHAR(20) NOT NULL,
+  street_address VARCHAR(500) NOT NULL,
+  city VARCHAR(100) NOT NULL,
+  state VARCHAR(100) NOT NULL,
+  postal_code VARCHAR(20),
+  country VARCHAR(100) DEFAULT 'Nigeria',
+  subtotal DECIMAL(10, 2) DEFAULT 0,
+  tax_amount DECIMAL(10, 2) DEFAULT 0,
+  delivery_fee DECIMAL(10, 2) DEFAULT 0,
+  total_amount DECIMAL(10, 2) NOT NULL,
   payment_status VARCHAR(50) DEFAULT 'pending' CHECK (payment_status IN ('pending', 'completed', 'failed')),
-  status VARCHAR(50) DEFAULT 'pending' CHECK (status IN ('pending', 'processing', 'completed', 'cancelled')),
+  order_status VARCHAR(50) DEFAULT 'processing' CHECK (order_status IN ('processing', 'shipped', 'delivered', 'cancelled')),
+  paystack_reference VARCHAR(255) UNIQUE,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

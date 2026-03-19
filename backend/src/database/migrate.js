@@ -202,6 +202,25 @@ async function migrateDatabase() {
       console.error('Error adding subcategory_id column:', err.message);
     }
 
+    // Add tax_amount column to orders if it doesn't exist
+    try {
+      const taxAmountCheck = await pool.query(`
+        SELECT column_name FROM information_schema.columns 
+        WHERE table_name = 'orders' AND column_name = 'tax_amount'
+      `);
+
+      if (taxAmountCheck.rows.length === 0) {
+        console.log('Adding tax_amount column to orders...');
+        await pool.query(`
+          ALTER TABLE orders 
+          ADD COLUMN tax_amount DECIMAL(10, 2) DEFAULT 0
+        `);
+        console.log('✅ tax_amount column added to orders');
+      }
+    } catch (err) {
+      console.error('Error adding tax_amount column:', err.message);
+    }
+
     console.log('✅ Database migrations complete');
   } catch (error) {
     console.error('❌ Database migration failed:', error.message);

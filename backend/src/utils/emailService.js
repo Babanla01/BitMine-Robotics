@@ -142,7 +142,7 @@ const emailTemplates = {
     </html>
   `,
 
-  orderConfirmation: (customerName, orderNumber, items, totalAmount, deliveryAddress, subtotal) => `
+  orderConfirmation: (customerName, orderNumber, items, totalAmount, deliveryAddress, subtotal, tax = 0, deliveryFee = 0) => `
     <!DOCTYPE html>
     <html>
     <head>
@@ -197,6 +197,8 @@ const emailTemplates = {
 
                 <div class="summary">
                     <p>Subtotal: <strong>₦${parseFloat(subtotal).toLocaleString()}</strong></p>
+                    <p>Tax (5%): <strong>₦${parseFloat(tax).toLocaleString()}</strong></p>
+                    <p>Delivery Fee: <strong>₦${parseFloat(deliveryFee).toLocaleString()}</strong></p>
                     <p class="total">Total Amount: ₦${parseFloat(totalAmount).toLocaleString()}</p>
                 </div>
 
@@ -474,6 +476,8 @@ export const sendOrderConfirmationEmail = async (orderData) => {
       items,
       totalAmount,
       subtotal,
+      tax,
+      delivery_fee,
       street_address,
       city,
       state,
@@ -486,7 +490,9 @@ export const sendOrderConfirmationEmail = async (orderData) => {
       items,
       totalAmount,
       { street_address, city, state, postal_code },
-      subtotal
+      subtotal,
+      tax,
+      delivery_fee
     );
 
     return await sendEmail({

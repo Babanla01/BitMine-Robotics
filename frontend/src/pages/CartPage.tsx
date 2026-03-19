@@ -22,6 +22,21 @@ interface UserAddress {
   is_default: boolean
 }
 
+// Delivery fee configuration
+const LOW_DELIVERY_STATES = ['Lagos', 'Ogun', 'Osun', 'Oyo']
+const LOW_DELIVERY_FEE = 5000
+const HIGH_DELIVERY_FEE = 10000
+
+// Calculate delivery fee based on state
+const getDeliveryFee = (state: string): number => {
+  return LOW_DELIVERY_STATES.includes(state) ? LOW_DELIVERY_FEE : HIGH_DELIVERY_FEE
+}
+
+// Calculate tax (5% of subtotal)
+const calculateTax = (subtotal: number): number => {
+  return Number((subtotal * 0.05).toFixed(2))
+}
+
 export default function CartPage() {
   const { state: cartState, dispatch } = useContext(CartContext)
   const { addToast } = useToast()
@@ -34,7 +49,9 @@ export default function CartPage() {
   const [profileLoading, setProfileLoading] = useState(false)
 
   const subtotal = cartState.items.reduce((sum, item) => sum + item.price * item.qty, 0)
-  const total = Number(subtotal)
+  const tax = calculateTax(subtotal)
+  const deliveryFee = defaultAddress ? getDeliveryFee(defaultAddress.state) : 0
+  const total = Number((subtotal + tax + deliveryFee).toFixed(2))
   const isCartEmpty = cartState.items.length === 0
 
   // Fetch user profile on component mount
@@ -109,6 +126,8 @@ export default function CartPage() {
           price: Number(item.price),
         })),
         subtotal: Number(subtotal),
+        tax: tax,
+        delivery_fee: deliveryFee,
         total_amount: Number(total),
       }
 
@@ -279,6 +298,16 @@ export default function CartPage() {
               <div className="d-flex justify-content-between mb-2">
                 <span className="text-medium">Items ({cartState.items.reduce((total, item) => total + item.qty, 0)})</span>
                 <span className="fw-semibold">₦{subtotal.toLocaleString()}</span>
+              </div>
+
+              <div className="d-flex justify-content-between mb-2 text-medium">
+                <span>Estimated Tax (5%)</span>
+                <span>₦{tax.toLocaleString()}</span>
+              </div>
+
+              <div className="d-flex justify-content-between mb-2 text-medium">
+                <span>Delivery Fee ({defaultAddress?.state})</span>
+                <span>₦{deliveryFee.toLocaleString()}</span>
               </div>
 
               <div className="border-top pt-3 mb-3">
